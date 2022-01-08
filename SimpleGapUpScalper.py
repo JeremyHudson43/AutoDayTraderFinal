@@ -70,7 +70,6 @@ class GapUpScalper_Driver():
         TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
         EndTime = pd.to_datetime("14:00").tz_localize('America/New_York')
 
-        # Waiting for Market to Open
         if TimeNow < EndTime:
 
            ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
