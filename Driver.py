@@ -72,7 +72,7 @@ if __name__ == "__main__":
     df = generate_gapper_CSV()
 
     tickers = df['Ticker'].to_list()
-    premarket_highs = df['Premarket_High'].to_list()
+    premarket_highs = df['Premarket High'].to_list()
 
     print(tickers)
 
