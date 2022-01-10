@@ -11,12 +11,19 @@ ticker_dict = {}
 # Logging into Interactive Broker TWS
 ib = IB()
 
+ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
 class GapUpScalper_Driver():
 
-    def check_for_breakout(self, ticker, high):
+    def get_percent(self, first, second):
+        if first == 0 or second == 0:
+            return 0
+        else:
+            percent = first / second * 100
+        return percent
 
-        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
+
+    def check_for_breakout(self, ticker, high):
 
         stock_brokeout = False
 
@@ -39,14 +46,8 @@ class GapUpScalper_Driver():
 
             time.sleep(5)
 
-            ib.disconnect()
-
 
     def sell_stock(self, ticker):
-
-       ib.disconnect()
-
-       ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
        ib.reqGlobalCancel()
 
@@ -62,8 +63,6 @@ class GapUpScalper_Driver():
 
        time.sleep(10)
 
-       ib.disconnect()
-
 
     def buy_stock(self, ticker, premarket_high):
 
@@ -73,8 +72,6 @@ class GapUpScalper_Driver():
         EndTime = pd.to_datetime("15:30").tz_localize('America/New_York')
 
         if TimeNow < EndTime:
-
-           ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
            ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -88,11 +85,15 @@ class GapUpScalper_Driver():
 
            qty_test = (acc_vals // Current_Ticker_Value) * 0.05
 
+           pct_difference = round(self.get_percent((qty_test * Current_Ticker_Value), acc_vals), 2)
+
            # qty = round(qty)
 
-           print('Would Have Bought: ', round(qty_test))
+           print('\nYou bought: ' + str(round(qty_test)) + ' shares of ' + str(ticker) + ' at $' +
+                 str(Current_Ticker_Value) + ' for a total of $' + str(round(qty_test * Current_Ticker_Value)) + ' USD' +
+                 ' which is a total of ' + str(pct_difference) + '% of your account ')
 
-           qty = 4
+           qty = round(qty_test)
 
            limit_price = float(str(round(premarket_high * 1.005, 2)))
            take_profit = float(str(round(premarket_high * 1.105, 2)))
@@ -109,4 +110,4 @@ class GapUpScalper_Driver():
            for o in entry_order:
                ib.placeOrder(ticker_contract, o)
 
-           # ib.disconnect()
+           time.sleep(15)

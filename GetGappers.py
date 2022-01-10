@@ -109,7 +109,7 @@ class GetGapper_Driver():
                     print("Shares Float", stock_float)
                     print("Volume", volume)
                     print("Stock Sector", stock_sector )
-                    print('Premarket Volume is', ratio, '% of Shares Outstanding\n')
+                    print('Premarket Volume is', ratio, '% of Shares Float\n')
                     print('Premarket High is', premarket_data['high'].max())
 
                     tickers.append(security.symbol)
@@ -122,6 +122,8 @@ class GetGapper_Driver():
 
             except Exception as err:
                 print(err)
+
+        ib.disconnect()
 
         df['Ticker'] = tickers
         df['Price'] = prices

@@ -84,20 +84,20 @@ if __name__ == "__main__":
     while start_time <= end_time:
 
         start_time, time_now, end_time, time_until_market_close = check_time()
-        try:
-            if count < len(tickers):
-                count = count + 1
-                final_stock_selected, ticker = check_stock(tickers[count - 1], premarket_highs[count - 1], final_stock_selected)
+        # try:
+        if count < len(tickers):
+            count = count + 1
+            final_stock_selected, ticker = check_stock(tickers[count - 1], premarket_highs[count - 1], final_stock_selected)
 
-                if final_stock_selected:
-                    # scalper.buy_stock(ticker, premarket_highs[count - 1])
-                    time.sleep(time_until_market_close - 300)
-                    # sell_stock(ticker)
+            if final_stock_selected:
+                scalper.buy_stock(ticker, premarket_highs[count - 1])
+                time.sleep(time_until_market_close - 300)
+                sell_stock(ticker)
 
-                time.sleep(5)
-                print(count)
+            time.sleep(5)
+            print(count)
 
-            elif count >= len(tickers):
+        elif count >= len(tickers):
                 count = 0
-        except Exception as err:
-                print(err)
+        # except Exception as err:
+                # print(err)
