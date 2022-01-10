@@ -90,21 +90,20 @@ class GapUpScalper_Driver():
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           qty = (acc_vals // Current_Ticker_Value) * 0.05
-           qty = round(qty)
-
-           pct_difference = round(self.get_percent((qty * Current_Ticker_Value), acc_vals), 2)
-
-           print('\nYou bought: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
-                 str(Current_Ticker_Value) + ' for a total of $' + str(round(qty * Current_Ticker_Value)) + ' USD' +
-                 ' which is a total of ' + str(pct_difference) + '% of your account ')
-
            limit_price = float(str(round(premarket_high * 1.005, 2)))
            take_profit = float(str(round(premarket_high * 1.105, 2)))
            stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
 
-           print('\nYou set a limit buy order at $' + str(limit_price) + ', a take profit at $' +
-                 str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
+           qty = (acc_vals // limit_price) * 0.05
+           qty = round(qty)
+
+           pct_difference = round(self.get_percent((qty * Current_Ticker_Value), acc_vals), 2)
+
+           print('\nYou set a buy limit order for: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
+                 str(limit_price) + ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                 ' which is a total of ' + str(pct_difference) + '% of your account ')
+
+           print('\nYou set a take profit at $' + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
 
            entry_order = ib.bracketOrder(
                'BUY',
@@ -120,5 +119,3 @@ class GapUpScalper_Driver():
            time.sleep(15)
 
            return qty
-
-
