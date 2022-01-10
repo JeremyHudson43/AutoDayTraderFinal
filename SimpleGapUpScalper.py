@@ -97,7 +97,7 @@ class GapUpScalper_Driver():
            qty = (acc_vals // limit_price) * 0.05
            qty = round(qty)
 
-           pct_difference = round(self.get_percent((qty * Current_Ticker_Value), acc_vals), 2)
+           pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
            print('\nYou set a buy limit order for: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
                  str(limit_price) + ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
