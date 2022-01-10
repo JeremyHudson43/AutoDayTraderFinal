@@ -41,7 +41,7 @@ class GapUpScalper_Driver():
             print('Premarket High: ', high)
 
             # if current stock value is greater than premarket high, add to list of stocks that broke out
-            if current_stock_value > high * 2:
+            if current_stock_value > high:
                 stock_brokeout = True
                 return stock_brokeout, ticker_obj.symbol
 
