@@ -86,8 +86,6 @@ class GapUpScalper_Driver():
 
            print("ticker: ", ticker_close)
 
-           Current_Ticker_Value = ticker_close.marketPrice()
-
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
            limit_price = float(str(round(premarket_high * 1.005, 2)))
@@ -101,7 +99,7 @@ class GapUpScalper_Driver():
 
            print('\nYou set a buy limit order for: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
                  str(limit_price) + ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                 ' which is a total of ' + str(pct_difference) + '% of your account ')
+                 ' which is ' + str(pct_difference) + '% of your account ')
 
            print('\nYou set a take profit at $' + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
 
