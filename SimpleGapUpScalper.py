@@ -7,10 +7,12 @@ from ib_insync import Order
 import random
 import traceback
 
+
 ticker_dict = {}
 
 # Logging into Interactive Broker TWS
 ib = IB()
+
 
 class GapUpScalper_Driver():
 
@@ -89,8 +91,10 @@ class GapUpScalper_Driver():
            limit_price = float(str(round(premarket_high * 1.005, 2)))
            take_profit = float(str(round(premarket_high * 1.105, 2)))
            stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
+           
+           percent_of_acct_to_trade = 0.05
 
-           qty = (acc_vals // limit_price) * 0.05
+           qty = (acc_vals // limit_price) * percent_of_acct_to_trade 
            qty = round(qty)
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
