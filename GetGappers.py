@@ -3,8 +3,31 @@ from ib_insync.ib import IB, ScannerSubscription, TagValue
 import pandas as pd
 import random
 from bs4 import BeautifulSoup
+import finviz
 
 class GetGapper_Driver():
+
+    def value_to_float(self, x):
+        if type(x) == float or type(x) == int:
+            return x
+        if 'K' in x:
+            if len(x) > 1:
+                return float(x.replace('K', '')) * 1000
+            return 1000.0
+        if 'M' in x:
+            if len(x) > 1:
+                return float(x.replace('M', '')) * 1000000
+            return 1000000.0
+        if 'B' in x:
+            if len(x) > 1:
+                return float(x.replace('B', '')) * 1000000000
+            return 1000000000.0
+        if 'T' in x:
+            if len(x) > 1:
+                return float(x.replace('T', '')) * 1000000000000
+            return 1000000000000000.0
+
+        return 0.0
 
     def get_percent(self, first, second):
         if first == 0 or second == 0:
@@ -18,9 +41,10 @@ class GetGapper_Driver():
         tickers = []
         prices = []
         volumes = []
-        shares = []
-        volume_share_ratios = []
+        floats = []
+        volume_float_ratio = []
         premarket_highs = []
+        sectors = []
 
         ib = IB()
 
@@ -56,13 +80,15 @@ class GetGapper_Driver():
 
                 security = Stock(stock, 'SMART', 'USD')
 
+                finviz_stock = finviz.get_stock(stock)
+
+                stock_float = self.value_to_float(finviz_stock['Shs Float'])
+                stock_sector = finviz_stock['Sector']
+
                 # request the fundamentals
                 fundamentals = ib.reqFundamentalData(security, 'ReportSnapshot')
 
                 soup = BeautifulSoup(str(fundamentals), 'xml')
-
-                shares = soup.find('SharesOut').text
-                shares = float(shares)
 
                 price = float(soup.find('Ratio').text)
 
@@ -79,22 +105,24 @@ class GetGapper_Driver():
                     ))
 
                 volume = sum(premarket_data['volume'].tolist()) * 100
-                ratio = self.get_percent(volume, shares)
+                ratio = self.get_percent(volume, stock_float)
 
-                if ratio >= 5 and volume > 150000 and shares < 30000000:
+                if ratio >= 5 and volume > 150000 and stock_float < 30000000:
                     print('Ticker', security.symbol)
                     print('Price', price)
-                    print("Shares Outstanding", shares)
+                    print("Shares Float", stock_float)
                     print("Volume", volume)
+                    print("Stock Sector", stock_sector )
                     print('Premarket Volume is', ratio, '% of Shares Outstanding\n')
                     print('Premarket High is', premarket_data['high'].max())
 
                     tickers.append(security.symbol)
                     prices.append(price)
                     volumes.append(volume)
-                    shares.append(shares)
-                    volume_share_ratios.append(ratio)
+                    floats.append(stock_float)
+                    volume_float_ratio.append(ratio)
                     premarket_highs.append(premarket_data['high'].max())
+                    sectors.append(stock_sector)
 
             except Exception as err:
                 print(err)
@@ -102,9 +130,10 @@ class GetGapper_Driver():
         df['Ticker'] = tickers
         df['Price'] = prices
         df['Volume'] = volumes
-        df['Shares Outstanding'] = shares
-        df['V/S Ratio'] = volume_share_ratios
+        df['Shares Float'] = stock_float
+        df['V/F Ratio'] = volume_float_ratio
         df['Premarket High'] = premarket_highs
+        df['Sector'] = sectors
 
         print(df)
 
