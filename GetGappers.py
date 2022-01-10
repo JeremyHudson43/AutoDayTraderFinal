@@ -81,7 +81,7 @@ class GetGapper_Driver():
                 volume = sum(premarket_data['volume'].tolist()) * 100
                 ratio = self.get_percent(volume, shares)
 
-                if ratio >= 10 and volume > 150000 and shares < 25000000:
+                if ratio >= 5 and volume > 150000 and shares < 25000000:
                     print('Ticker', security.symbol)
                     print('Price', price)
                     print("Shares Outstanding", shares)

@@ -68,7 +68,7 @@ class GapUpScalper_Driver():
         now = str(datetime.now().time())  # time object
 
         TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
-        EndTime = pd.to_datetime("14:00").tz_localize('America/New_York')
+        EndTime = pd.to_datetime("15:30").tz_localize('America/New_York')
 
         if TimeNow < EndTime:
 
@@ -84,13 +84,13 @@ class GapUpScalper_Driver():
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           # qty = acc_vals // (Current_Ticker_Value * 10.005)
+           qty = (acc_vals // Current_Ticker_Value) * 0.05
 
-           qty = 200
+           qty = round(qty)
 
-           limit_price = float(str(round(premarket_high * 1.01, 2)))
-           take_profit = float(str(round(premarket_high * 1.11, 2)))
-           stop_loss_price = float(str(round(premarket_high * 0.99, 2)))
+           limit_price = float(str(round(premarket_high * 1.005, 2)))
+           take_profit = float(str(round(premarket_high * 1.105, 2)))
+           stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
 
            entry_order = ib.bracketOrder(
                'BUY',

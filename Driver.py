@@ -48,7 +48,6 @@ def check_stock(stock_name, premarket_high, final_stock_selected):
         stock_brokeout, ticker = scalper.check_for_breakout(stock_name, premarket_high)
 
         if stock_brokeout and not final_stock_selected:
-            scalper.buy_stock(ticker, premarket_high)
             final_stock_selected = True
 
             return final_stock_selected, ticker
@@ -91,6 +90,7 @@ if __name__ == "__main__":
                 final_stock_selected, ticker = check_stock(tickers[count - 1], premarket_highs[count - 1], final_stock_selected)
 
                 if final_stock_selected:
+                    scalper.buy_stock(ticker, premarket_highs[count - 1])
                     time.sleep(time_until_market_close - 300)
                     sell_stock(ticker)
 
