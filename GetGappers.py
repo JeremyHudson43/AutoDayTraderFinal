@@ -19,7 +19,7 @@ class GetGapper_Driver():
         prices = []
         volumes = []
         shares = []
-        volume_float_ratios = []
+        volume_share_ratios = []
         premarket_highs = []
 
         ib = IB()
@@ -93,7 +93,7 @@ class GetGapper_Driver():
                     prices.append(price)
                     volumes.append(volume)
                     shares.append(shares)
-                    volume_float_ratios.append(ratio)
+                    volume_share_ratios.append(ratio)
                     premarket_highs.append(premarket_data['high'].max())
 
             except Exception as err:
@@ -103,7 +103,7 @@ class GetGapper_Driver():
         df['Price'] = prices
         df['Volume'] = volumes
         df['Shares Outstanding'] = shares
-        df['V/F Ratio'] = volume_float_ratios
+        df['V/S Ratio'] = volume_share_ratios
         df['Premarket High'] = premarket_highs
 
         print(df)
