@@ -87,7 +87,7 @@ class GetGapper_Driver():
                     print("Shares Outstanding", shares)
                     print("Volume", volume)
                     print('Premarket Volume is', ratio, '% of Shares Outstanding\n')
-                    print('Premarket High is', ratio)
+                    print('Premarket High is', premarket_data['high'].max())
 
                     tickers.append(security.symbol)
                     prices.append(price)
