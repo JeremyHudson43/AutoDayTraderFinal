@@ -91,9 +91,9 @@ if __name__ == "__main__":
                 final_stock_selected, ticker = check_stock(tickers[count - 1], premarket_highs[count - 1], final_stock_selected)
 
                 if final_stock_selected:
-                    scalper.buy_stock(ticker, premarket_highs[count - 1])
+                    qty = scalper.buy_stock(ticker, premarket_highs[count - 1])
                     time.sleep(time_until_market_close - 300)
-                    sell_stock(ticker)
+                    sell_stock(ticker, qty)
 
                 print(count)
 
@@ -101,5 +101,6 @@ if __name__ == "__main__":
                     count = 0
 
             time.sleep(1)
+
         except Exception as err:
             print(traceback.format_exc())

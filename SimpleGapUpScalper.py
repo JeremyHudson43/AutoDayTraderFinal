@@ -49,18 +49,14 @@ class GapUpScalper_Driver():
 
             time.sleep(5)
 
-            #ib.disconnect()
 
-
-    def sell_stock(self, ticker):
+    def sell_stock(self, ticker, qty):
 
        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
        ib.reqGlobalCancel()
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
-
-       qty = [v.position for v in ib.positions()][0]
 
        order = Order(orderId=15, action='Sell', orderType='MKT', totalQuantity=qty)
 
@@ -122,3 +118,7 @@ class GapUpScalper_Driver():
                ib.placeOrder(ticker_contract, o)
 
            time.sleep(15)
+
+           return qty
+
+
