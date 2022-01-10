@@ -5,6 +5,7 @@ import multiprocessing
 import time
 from datetime import datetime
 import gc
+import traceback
 import sys
 
 scalper = SimpleGapUpScalper.GapUpScalper_Driver()
@@ -94,10 +95,11 @@ if __name__ == "__main__":
                     time.sleep(time_until_market_close - 300)
                     sell_stock(ticker)
 
-                time.sleep(5)
                 print(count)
 
             elif count >= len(tickers):
                     count = 0
+
+            time.sleep(1)
         except Exception as err:
-            print(err)
+            print(traceback.format_exc())

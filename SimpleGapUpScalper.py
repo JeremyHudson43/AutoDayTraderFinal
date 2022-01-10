@@ -5,6 +5,8 @@ from datetime import datetime
 import pandas as pd
 from ib_insync import Order
 import random
+import traceback
+
 
 ticker_dict = {}
 
@@ -28,7 +30,7 @@ class GapUpScalper_Driver():
 
         while not stock_brokeout:
 
-            ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 1))
+            ib.connect('127.0.0.1', 7497, clientId=random.randint(300, 600))
 
             ticker_obj = Stock(ticker, 'SMART', 'USD')
 
@@ -47,7 +49,7 @@ class GapUpScalper_Driver():
 
             time.sleep(5)
 
-        ib.disconnect()
+            #ib.disconnect()
 
 
     def sell_stock(self, ticker):
@@ -71,7 +73,7 @@ class GapUpScalper_Driver():
 
     def buy_stock(self, ticker, premarket_high):
 
-        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
+        ib.disconnect()
 
         now = str(datetime.now().time())  # time object
 
@@ -79,6 +81,8 @@ class GapUpScalper_Driver():
         EndTime = pd.to_datetime("15:30").tz_localize('America/New_York')
 
         if TimeNow < EndTime:
+
+           ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
            ticker_contract = Stock(ticker, 'SMART', 'USD')
 
