@@ -83,15 +83,13 @@ class GapUpScalper_Driver():
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           qty_test = (acc_vals // Current_Ticker_Value) * 0.05
-           qty = round(qty_test)
+           qty = (acc_vals // Current_Ticker_Value) * 0.05
+           qty = round(qty)
 
-           pct_difference = round(self.get_percent((qty_test * Current_Ticker_Value), acc_vals), 2)
+           pct_difference = round(self.get_percent((qty * Current_Ticker_Value), acc_vals), 2)
 
-           # qty = round(qty)
-
-           print('\nYou bought: ' + str(qty_test) + ' shares of ' + str(ticker) + ' at $' +
-                 str(Current_Ticker_Value) + ' for a total of $' + str(round(qty_test * Current_Ticker_Value)) + ' USD' +
+           print('\nYou bought: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
+                 str(Current_Ticker_Value) + ' for a total of $' + str(round(qty * Current_Ticker_Value)) + ' USD' +
                  ' which is a total of ' + str(pct_difference) + '% of your account ')
 
            limit_price = float(str(round(premarket_high * 1.005, 2)))
