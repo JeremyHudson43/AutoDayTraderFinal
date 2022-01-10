@@ -18,7 +18,7 @@ class GetGapper_Driver():
         tickers = []
         prices = []
         volumes = []
-        floats = []
+        shares = []
         volume_float_ratios = []
         premarket_highs = []
 
@@ -92,7 +92,7 @@ class GetGapper_Driver():
                     tickers.append(security.symbol)
                     prices.append(price)
                     volumes.append(volume)
-                    floats.append(shares)
+                    shares.append(shares)
                     volume_float_ratios.append(ratio)
                     premarket_highs.append(premarket_data['high'].max())
 
@@ -102,9 +102,9 @@ class GetGapper_Driver():
         df['Ticker'] = tickers
         df['Price'] = prices
         df['Volume'] = volumes
-        df['Float'] = floats
+        df['Shares Outstanding'] = shares
         df['V/F Ratio'] = volume_float_ratios
-        df['Premarket_High'] = premarket_highs
+        df['Premarket High'] = premarket_highs
 
         print(df)
 
