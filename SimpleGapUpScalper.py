@@ -7,12 +7,10 @@ from ib_insync import Order
 import random
 import traceback
 
-
 ticker_dict = {}
 
 # Logging into Interactive Broker TWS
 ib = IB()
-
 
 class GapUpScalper_Driver():
 
@@ -97,11 +95,12 @@ class GapUpScalper_Driver():
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
-           print('\nYou set a buy limit order for: ' + str(qty) + ' shares of ' + str(ticker) + ' at $' +
-                 str(limit_price) + ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
                  ' which is ' + str(pct_difference) + '% of your account ')
 
-           print('\nYou set a take profit at $' + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
+           print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
+                 + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
 
            entry_order = ib.bracketOrder(
                'BUY',
