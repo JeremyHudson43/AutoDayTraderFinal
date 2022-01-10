@@ -67,16 +67,12 @@ class GetGapper_Driver():
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
-        print(symbols)
-
         df = pd.DataFrame()
 
-        # loop through the scanner results and get the contract details
-        for stock in symbols[:10]:
+        # loop through the scanner results and get the contract details of top 20 results
+        for stock in symbols[:20]:
 
             try:
-
-                print(stock)
 
                 security = Stock(stock, 'SMART', 'USD')
 
@@ -96,7 +92,7 @@ class GetGapper_Driver():
                 premarket_data = pd.DataFrame(
                     ib.reqHistoricalData(
                         security,
-                        endDateTime='09:29:00',
+                        endDateTime='09:29:59',
                         durationStr='1 D',
                         barSizeSetting='1 min',
                         whatToShow="TRADES",
@@ -130,11 +126,9 @@ class GetGapper_Driver():
         df['Ticker'] = tickers
         df['Price'] = prices
         df['Volume'] = volumes
-        df['Shares Float'] = stock_float
+        df['Shares Float'] = floats
         df['V/F Ratio'] = volume_float_ratio
         df['Premarket High'] = premarket_highs
         df['Sector'] = sectors
-
-        print(df)
 
         return df

@@ -44,6 +44,8 @@ class GapUpScalper_Driver():
 
     def sell_stock(self, ticker):
 
+       ib.disconnect()
+
        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
        ib.reqGlobalCancel()
@@ -84,9 +86,13 @@ class GapUpScalper_Driver():
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           qty = (acc_vals // Current_Ticker_Value) * 0.05
+           qty_test = (acc_vals // Current_Ticker_Value) * 0.05
 
-           qty = round(qty)
+           # qty = round(qty)
+
+           print('Would Have Bought: ', round(qty_test))
+
+           qty = 4
 
            limit_price = float(str(round(premarket_high * 1.005, 2)))
            take_profit = float(str(round(premarket_high * 1.105, 2)))
@@ -103,4 +109,4 @@ class GapUpScalper_Driver():
            for o in entry_order:
                ib.placeOrder(ticker_contract, o)
 
-           ib.disconnect()
+           # ib.disconnect()
