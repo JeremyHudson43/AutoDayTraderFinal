@@ -34,10 +34,10 @@ def check_time():
     return StartTime, TimeNow, EndTime, time_until_market_close
 
 
-def sell_stock(ticker):
+def sell_stock(ticker, qty):
     try:
         # sell if you've bought already and haven't sold 5 minutes before close
-        scalper.sell_stock(ticker)
+        scalper.sell_stock(ticker, qty)
         sys.exit(0)
     except Exception as err:
         print(err)
@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
                 if final_stock_selected:
                     qty = scalper.buy_stock(ticker, premarket_highs[count - 1])
-                    time.sleep(time_until_market_close - 300)
+                    time.sleep(time_until_market_close - 900)
                     sell_stock(ticker, qty)
 
                 print(count)
