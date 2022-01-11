@@ -33,6 +33,11 @@ class GapUpScalper_Driver():
 
         while not stock_brokeout and TimeNow < EndTime:
 
+            now = str(datetime.now().time())  # time object
+
+            TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
+            EndTime = pd.to_datetime("15:45").tz_localize('America/New_York')
+
             ib.connect('127.0.0.1', 7497, clientId=random.randint(300, 600))
 
             ticker_obj = Stock(ticker, 'SMART', 'USD')
