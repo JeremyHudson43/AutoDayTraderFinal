@@ -7,12 +7,10 @@ from ib_insync import Order
 import random
 import traceback
 
-
 ticker_dict = {}
 
 # Logging into Interactive Broker TWS
 ib = IB()
-
 
 class GapUpScalper_Driver():
 
@@ -26,9 +24,14 @@ class GapUpScalper_Driver():
 
     def check_for_breakout(self, ticker, high):
 
+        now = str(datetime.now().time())  # time object
+
+        TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
+        EndTime = pd.to_datetime("15:45").tz_localize('America/New_York')
+
         stock_brokeout = False
 
-        while not stock_brokeout:
+        while not stock_brokeout and TimeNow < EndTime:
 
             ib.connect('127.0.0.1', 7497, clientId=random.randint(300, 600))
 
@@ -51,6 +54,8 @@ class GapUpScalper_Driver():
 
 
     def sell_stock(self, ticker, qty):
+
+       ib.disconnect()
 
        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
@@ -91,10 +96,10 @@ class GapUpScalper_Driver():
            limit_price = float(str(round(premarket_high * 1.005, 2)))
            take_profit = float(str(round(premarket_high * 1.105, 2)))
            stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
-           
+
            percent_of_acct_to_trade = 0.05
 
-           qty = (acc_vals // limit_price) * percent_of_acct_to_trade 
+           qty = (acc_vals // limit_price) * percent_of_acct_to_trade
            qty = round(qty)
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
