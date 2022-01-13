@@ -11,6 +11,7 @@ ticker_dict = {}
 
 # Logging into Interactive Broker TWS
 ib = IB()
+ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
 class GapUpScalper_Driver():
 
@@ -21,50 +22,14 @@ class GapUpScalper_Driver():
             percent = first / second * 100
         return percent
 
-
-    def check_for_breakout(self, ticker, high):
-
-        now = str(datetime.now().time())  # time object
-
-        TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
-        EndTime = pd.to_datetime("15:45").tz_localize('America/New_York')
-
-        stock_brokeout = False
-
-        while not stock_brokeout and TimeNow < EndTime:
-
-            now = str(datetime.now().time())  # time object
-
-            TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
-            EndTime = pd.to_datetime("15:45").tz_localize('America/New_York')
-
-            ib.connect('127.0.0.1', 7497, clientId=random.randint(300, 600))
-
-            ticker_obj = Stock(ticker, 'SMART', 'USD')
-
-            [ticker] = ib.reqTickers(ticker_obj)
-
-            current_stock_value = ticker.marketPrice()
-
-            print('\nTicker: ', ticker_obj.symbol)
-            print('Current Stock Value: ', current_stock_value)
-            print('Premarket High: ', high)
-
-            # if current stock value is greater than premarket high, add to list of stocks that broke out
-            if current_stock_value > high:
-                stock_brokeout = True
-                return stock_brokeout, ticker_obj.symbol
-
-            time.sleep(5)
-
-
-    def sell_stock(self, ticker, qty):
-
-       ib.disconnect()
+    def sell_stock(self):
 
        ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
        ib.reqGlobalCancel()
+
+       ticker = ib.positions()[0]
+       qty = [v.position for v in ib.positions()][0]
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -76,19 +41,14 @@ class GapUpScalper_Driver():
 
        time.sleep(10)
 
-
     def buy_stock(self, ticker, premarket_high):
-
-        ib.disconnect()
 
         now = str(datetime.now().time())  # time object
 
         TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
         EndTime = pd.to_datetime("15:30").tz_localize('America/New_York')
 
-        if TimeNow < EndTime:
-
-           ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
+        if TimeNow > EndTime:
 
            ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -126,6 +86,7 @@ class GapUpScalper_Driver():
 
            for o in entry_order:
                ib.placeOrder(ticker_contract, o)
+               ib.oneCancelsAll([o for o in entry_order], 'group', 1)
 
            time.sleep(15)
 

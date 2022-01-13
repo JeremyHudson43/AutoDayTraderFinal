@@ -1,5 +1,5 @@
 import SimpleGapUpScalper
-import GetGappers
+import GetGapUps
 import pandas as pd
 import multiprocessing
 import time
@@ -7,9 +7,10 @@ from datetime import datetime
 import gc
 import traceback
 import sys
+from ib_insync.ib import IB
 
 scalper = SimpleGapUpScalper.GapUpScalper_Driver()
-get_gappers_class = GetGappers.GetGapper_Driver()
+get_gappers_class = GetGapUps.GetGapper_Driver()
 
 
 def check_time():
@@ -43,17 +44,6 @@ def sell_stock(ticker, qty):
         print(err)
 
 
-def check_stock(stock_name, premarket_high, final_stock_selected):
-
-    if not final_stock_selected:
-        stock_brokeout, ticker = scalper.check_for_breakout(stock_name, premarket_high)
-
-        if stock_brokeout and not final_stock_selected:
-            final_stock_selected = True
-
-            return final_stock_selected, ticker
-
-
 def generate_gapper_CSV():
 
     today = datetime.today().strftime('%Y-%m-%d')
@@ -75,32 +65,7 @@ if __name__ == "__main__":
     tickers = df['Ticker'].to_list()
     premarket_highs = df['Premarket High'].to_list()
 
-    print(tickers)
+    for ticker, premarket_high in zip(tickers, premarket_highs):
+        scalper.buy_stock(ticker, premarket_high)
 
-    count = 0
-    final_stock_selected = False
-
-    start_time, time_now, end_time, time_until_market_close = check_time()
-
-    while start_time <= end_time:
-
-        start_time, time_now, end_time, time_until_market_close = check_time()
-        try:
-            if count < len(tickers):
-                count = count + 1
-                final_stock_selected, ticker = check_stock(tickers[count - 1], premarket_highs[count - 1], final_stock_selected)
-
-                if final_stock_selected:
-                    qty = scalper.buy_stock(ticker, premarket_highs[count - 1])
-                    time.sleep(time_until_market_close - 900)
-                    sell_stock(ticker, qty)
-
-                print(count)
-
-            elif count >= len(tickers):
-                    count = 0
-
-            time.sleep(1)
-
-        except Exception as err:
-            print(traceback.format_exc())
+    sys.exit(0)
