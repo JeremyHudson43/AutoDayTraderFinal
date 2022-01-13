@@ -83,3 +83,6 @@ class GapUpScalper_Driver():
                ib.placeOrder(ticker_contract, o)
 
            return order_list
+
+       else:
+        return None

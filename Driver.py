@@ -67,8 +67,6 @@ if __name__ == "__main__":
     while time_now < end_time:
         start_time, time_now, end_time, time_until_market_close = check_time()
 
-        time.sleep(10)
-
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
             print(ticker, premarket_high)
@@ -80,9 +78,11 @@ if __name__ == "__main__":
             if order_list is not None:
                 orders = orders + order_list
 
-        if orders is not None:
+        if len(orders) > 0 and order_list is not None:
             ib.oneCancelsAll(orders, 'group', 1)
             time.sleep(time_until_market_close - 900)
-            scalper.sell_stock()
+            scalper.sell_stock(ib)
+
+        time.sleep(15)
 
     sys.exit(0)
