@@ -48,68 +48,75 @@ for file in os.listdir(directory):
 
     # groups to a list of dataframes with list comprehension
     dfs = [group for _,group in g]
-    for df in dfs:
-        try:
+    for df in range(len(dfs)):
+        # try:
 
-            date = df['date'].dt.date
+        dataframe_obj = dfs[df]
+        yesterday_close = dfs[df - 1]
 
-            if len(date) > 0:
-                date = date.to_list()[0]
+        date = dataframe_obj ['date'].dt.date
 
-            df['date'] = df['date'].dt.time
+        if len(date) > 0:
+            date = date.to_list()[0]
 
-            premarket_start = datetime.strptime('04:00', '%H:%M').time()
-            premarket_end = datetime.strptime('09:30', '%H:%M').time()
+        dataframe_obj['date'] = dataframe_obj['date'].dt.time
 
-            market_end = datetime.strptime('16:00', '%H:%M').time()
+        premarket_start = datetime.strptime('04:00', '%H:%M').time()
+        premarket_end = datetime.strptime('09:30', '%H:%M').time()
 
-            premarket_df = df[df["date"].between(premarket_start, premarket_end)]
-            premarket_high = premarket_df['high'].max()
+        market_end = datetime.strptime('16:00', '%H:%M').time()
 
-            market_df = df[df["date"].between(premarket_end, market_end)]
+        premarket_df = dataframe_obj[dataframe_obj["date"].between(premarket_start, premarket_end)]
+        premarket_high = premarket_df['high'].max()
 
-            market_high = market_df['high'].max()
-            market_low = market_df['low'].min()
+        market_df = dataframe_obj[dataframe_obj ["date"].between(premarket_end, market_end)]
 
-            finviz_stock = finviz.get_stock(stock)
-            stock_float = value_to_float(finviz_stock['Shs Float'])
+        market_high = market_df['high'].max()
+        market_low = market_df['low'].min()
 
-            total_premarket_volume = sum(premarket_df['volume'].tolist()) * 100
-            five_percent_of_float = stock_float * 0.05
+        finviz_stock = finviz.get_stock(stock)
+        stock_float = value_to_float(finviz_stock['Shs Float'])
 
-            if len(market_df['open'].to_list()) > 0 and len(premarket_df['open'].to_list()) > 0:
-                market_open = market_df['open'].to_list()[0]
-                premarket_open = premarket_df['open'].to_list()[0]
+        total_premarket_volume = sum(premarket_df['volume'].tolist()) * 100
+        five_percent_of_float = stock_float * 0.05
 
-                if total_premarket_volume > five_percent_of_float and market_high > premarket_high and \
-                       market_open > premarket_open * 1.05 and total_premarket_volume > 150000:
+        if len(market_df['open'].to_list()) > 0 and len(premarket_df['open'].to_list()) > 0 and len(yesterday_close['close'].to_list()) > 0:
+            market_open = market_df['open'].to_list()[0]
+            premarket_open = premarket_df['open'].to_list()[0]
 
-                    df_to_save = pd.DataFrame()
+            yesterday_close = yesterday_close['close'].to_list()[-1]
 
-                    print("Stock", stock)
-                    print("Market Low", market_low)
-                    print("Market High", market_high)
-                    print('Market Open', market_open)
-                    print('Premarket Open', premarket_open)
-                    print("Premarket High", premarket_high)
-                    print("Premarket Volume", total_premarket_volume)
-                    print('Date', date)
-                    print('Market High is ' + str(round((get_percent(market_high, premarket_high) - 100), 2)) + '% higher than Premarket High')
+            if market_open > yesterday_close * 1.05 and total_premarket_volume > 150000 \
+                and market_high > premarket_high:
 
-                    df_to_save['stock'] = [stock]
-                    df_to_save['market_low'] = [market_low]
-                    df_to_save['market_high'] = [market_high]
-                    df_to_save['market_open'] = [market_open]
-                    df_to_save['premarket_open'] = [premarket_open]
-                    df_to_save['premarket_high'] = [premarket_high]
-                    df_to_save['premarket_volume'] = [total_premarket_volume]
-                    df_to_save['date'] = [date]
-                    df_to_save['change_between_highs'] = [round(get_percent(market_high, premarket_high) - 100, 2)]
-                    df_to_save.to_csv('C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv')
+                df_to_save = pd.DataFrame()
 
-                    sys.exit(0)
-        except Exception as err:
-            print(err)
-            sys.exit(0)
+                print("Stock", stock)
+                print("Market Low", market_low)
+                print("Market High", market_high)
+                print('Market Open', market_open)
+                print('Yesterday Close', yesterday_close)
+                print("Premarket High", premarket_high)
+                print("Premarket Open", premarket_open)
+                print("Premarket Volume", total_premarket_volume)
+                print('Date', date)
+                print('Market High is ' + str(round((get_percent(market_high, premarket_high) - 100), 2)) + '% higher than Premarket High')
+
+                df_to_save['stock'] = [stock]
+                df_to_save['market_low'] = [market_low]
+                df_to_save['market_high'] = [market_high]
+                df_to_save['market_open'] = [market_open]
+                df_to_save['yesterday_close'] = [yesterday_close]
+                df_to_save['premarket_high'] = [premarket_high]
+                df_to_save['premarket_open'] = [premarket_open]
+                df_to_save['premarket_volume'] = [total_premarket_volume]
+                df_to_save['date'] = [date]
+                df_to_save['change_between_highs'] = [str(round(get_percent(market_high, premarket_high) - 100, 2))  +'%']
+                df_to_save.to_csv('C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv')
+
+                    # sys.exit(0)
+        # except Exception as err:
+           #  print(err)
+            # sys.exit(0)
 
         print(df)
