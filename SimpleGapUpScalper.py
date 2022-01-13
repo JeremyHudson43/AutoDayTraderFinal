@@ -1,13 +1,6 @@
 import time
-from ib_insync.contract import Index, Option, Stock
-from ib_insync.ib import IB
-from datetime import datetime
-import pandas as pd
+from ib_insync.contract import Stock
 from ib_insync import Order
-import random
-import traceback
-
-ticker_dict = {}
 
 
 class GapUpScalper_Driver():

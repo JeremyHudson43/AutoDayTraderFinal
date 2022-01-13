@@ -4,6 +4,7 @@ import pandas as pd
 import random
 from finviz.screener import Screener
 import time
+import os
 
 filters = ['sh_float_u20']
 stock_list = Screener(filters=filters, table='Performance', order='price')
@@ -12,33 +13,38 @@ ib = IB()
 
 ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
+directory = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_records'
+
 for ticker in stock_list:
 
-    ticker = ticker['Ticker']
+    print([x[:-4] for x in os.listdir(directory)])
+    print(ticker['Ticker'])
 
-    stock = ticker
+    if ticker['Ticker'] not in [x[:-4] for x in os.listdir(directory)]:
 
-    security = Stock(stock, 'SMART', 'USD')
+        ticker = ticker['Ticker']
 
-    year = '2021'
-    month = '12'
-    day = '31'
+        stock = ticker
 
-    market_date = year + month + day + ' 16:00:00'
+        security = Stock(stock, 'SMART', 'USD')
 
-    # Fetching historical data when market is closed for testing purposes
-    market_data = pd.DataFrame(
-        ib.reqHistoricalData(
-            security,
-            endDateTime=market_date,
-            durationStr='12 M',
-            barSizeSetting='15 mins',
-            whatToShow="TRADES",
-            useRTH=False,
-            formatDate=1
-        ))
+        year = '2021'
+        month = '12'
+        day = '31'
 
-    if not market_data.empty:
-        market_data.to_csv('small_cap_records\\' + ticker  + '.csv')
+        market_date = year + month + day + ' 16:00:00'
 
-    time.sleep(5)
+        # Fetching historical data when market is closed for testing purposes
+        market_data = pd.DataFrame(
+            ib.reqHistoricalData(
+                security,
+                endDateTime=market_date,
+                durationStr='12 M',
+                barSizeSetting='15 mins',
+                whatToShow="TRADES",
+                useRTH=False,
+                formatDate=1
+            ))
+
+        if not market_data.empty:
+            market_data.to_csv('small_cap_records\\' + ticker  + '.csv')
