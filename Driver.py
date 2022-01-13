@@ -5,10 +5,15 @@ import time
 from datetime import datetime
 import traceback
 import sys
+from ib_insync.ib import IB
+import random
 
 scalper = SimpleGapUpScalper.GapUpScalper_Driver()
 get_gappers_class = GetGapUps.GetGapper_Driver()
 
+# Logging into Interactive Broker TWS
+ib = IB()
+ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
 def check_time():
     ## STARTING THE ALGORITHM ##
@@ -46,6 +51,8 @@ def generate_gapper_CSV():
 
 if __name__ == "__main__":
 
+    orders = []
+
     check_time()
 
     df = generate_gapper_CSV()
@@ -55,10 +62,21 @@ if __name__ == "__main__":
 
     start_time, time_now, end_time, time_until_market_close = check_time()
 
+    multiplier = 0
+
     for ticker, premarket_high in zip(tickers, premarket_highs):
 
-        scalper.buy_stock(ticker, premarket_high)
-        time.sleep(time_until_market_close - 900)
-        scalper.sell_stock()
+        print(ticker, premarket_high)
+
+        multiplier = multiplier + 1
+
+        order_list = scalper.buy_stock(ticker, premarket_high, multiplier, ib)
+
+        if order_list is not None:
+            orders = orders + order_list
+
+    ib.oneCancelsAll(orders, 'group', 1)
+    time.sleep(time_until_market_close - 900)
+    scalper.sell_stock()
 
     sys.exit(0)
