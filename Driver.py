@@ -60,23 +60,29 @@ if __name__ == "__main__":
     tickers = df['Ticker'].to_list()
     premarket_highs = df['Premarket High'].to_list()
 
-    start_time, time_now, end_time, time_until_market_close = check_time()
-
     multiplier = 0
 
-    for ticker, premarket_high in zip(tickers, premarket_highs):
+    start_time, time_now, end_time, time_until_market_close = check_time()
 
-        print(ticker, premarket_high)
+    while time_now < end_time:
+        start_time, time_now, end_time, time_until_market_close = check_time()
 
-        multiplier = multiplier + 1
+        time.sleep(10)
 
-        order_list = scalper.buy_stock(ticker, premarket_high, multiplier, ib)
+        for ticker, premarket_high in zip(tickers, premarket_highs):
 
-        if order_list is not None:
-            orders = orders + order_list
+            print(ticker, premarket_high)
 
-    ib.oneCancelsAll(orders, 'group', 1)
-    time.sleep(time_until_market_close - 900)
-    scalper.sell_stock()
+            multiplier = multiplier + 1
+
+            order_list = scalper.buy_stock(ticker, premarket_high, multiplier, ib)
+
+            if order_list is not None:
+                orders = orders + order_list
+
+        if orders is not None:
+            ib.oneCancelsAll(orders, 'group', 1)
+            time.sleep(time_until_market_close - 900)
+            scalper.sell_stock()
 
     sys.exit(0)
