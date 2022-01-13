@@ -41,51 +41,44 @@ class GapUpScalper_Driver():
 
     def buy_stock(self, ticker, premarket_high):
 
-        now = str(datetime.now().time())  # time object
+       ticker_contract = Stock(ticker, 'SMART', 'USD')
 
-        TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
-        EndTime = pd.to_datetime("15:30").tz_localize('America/New_York')
+       [ticker_close] = ib.reqTickers(ticker_contract)
 
-        if TimeNow > EndTime:
+       print("ticker: ", ticker_close)
 
-           ticker_contract = Stock(ticker, 'SMART', 'USD')
+       acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           [ticker_close] = ib.reqTickers(ticker_contract)
+       limit_price = float(str(round(premarket_high * 1.005, 2)))
+       take_profit = float(str(round(premarket_high * 1.105, 2)))
+       stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
 
-           print("ticker: ", ticker_close)
+       percent_of_acct_to_trade = 0.05
 
-           acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+       qty = (acc_vals // limit_price) * percent_of_acct_to_trade
+       qty = round(qty)
 
-           limit_price = float(str(round(premarket_high * 1.005, 2)))
-           take_profit = float(str(round(premarket_high * 1.105, 2)))
-           stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
+       pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
-           percent_of_acct_to_trade = 0.05
+       print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+             ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+             ' which is ' + str(pct_difference) + '% of your account ')
 
-           qty = (acc_vals // limit_price) * percent_of_acct_to_trade
-           qty = round(qty)
+       print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
+             + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
 
-           pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
+       entry_order = ib.bracketOrder(
+           'BUY',
+           qty,
+           limitPrice=limit_price,
+           takeProfitPrice=take_profit,
+           stopLossPrice=stop_loss_price
+       )
 
-           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                 ' which is ' + str(pct_difference) + '% of your account ')
+       for o in entry_order:
+           ib.placeOrder(ticker_contract, o)
+           ib.oneCancelsAll([o for o in entry_order], 'group', 1)
 
-           print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
-                 + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
+       time.sleep(15)
 
-           entry_order = ib.bracketOrder(
-               'BUY',
-               qty,
-               limitPrice=limit_price,
-               takeProfitPrice=take_profit,
-               stopLossPrice=stop_loss_price
-           )
-
-           for o in entry_order:
-               ib.placeOrder(ticker_contract, o)
-               ib.oneCancelsAll([o for o in entry_order], 'group', 1)
-
-           time.sleep(15)
-
-           return qty
+       return qty
