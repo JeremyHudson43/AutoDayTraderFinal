@@ -24,8 +24,6 @@ class GapUpScalper_Driver():
 
     def sell_stock(self):
 
-       ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
-
        ib.reqGlobalCancel()
 
        ticker = ib.positions()[0]

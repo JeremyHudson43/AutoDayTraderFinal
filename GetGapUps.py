@@ -70,7 +70,7 @@ class GetGapper_Driver():
         df = pd.DataFrame()
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:10]:
+        for stock in symbols[:20]:
 
             try:
 
@@ -103,22 +103,22 @@ class GetGapper_Driver():
                 volume = sum(premarket_data['volume'].tolist()) * 100
                 ratio = self.get_percent(volume, stock_float)
 
-                # if ratio >= 5 and volume > 150000 and stock_float < 30000000:
-                print('Ticker', security.symbol)
-                print('Price', price)
-                print("Shares Float", stock_float)
-                print("Volume", volume)
-                print("Stock Sector", stock_sector )
-                print('Premarket Volume is', ratio, '% of Shares Float\n')
-                print('Premarket High is', premarket_data['high'].max())
+                if ratio >= 5 and volume > 150000 and stock_float < 30000000:
+                    print('Ticker', security.symbol)
+                    print('Price', price)
+                    print("Shares Float", stock_float)
+                    print("Volume", volume)
+                    print("Stock Sector", stock_sector )
+                    print('Premarket Volume is', ratio, '% of Shares Float\n')
+                    print('Premarket High is', premarket_data['high'].max())
 
-                tickers.append(security.symbol)
-                prices.append(price)
-                volumes.append(volume)
-                floats.append(stock_float)
-                volume_float_ratio.append(ratio)
-                premarket_highs.append(premarket_data['high'].max())
-                sectors.append(stock_sector)
+                    tickers.append(security.symbol)
+                    prices.append(price)
+                    volumes.append(volume)
+                    floats.append(stock_float)
+                    volume_float_ratio.append(ratio)
+                    premarket_highs.append(premarket_data['high'].max())
+                    sectors.append(stock_sector)
 
             except Exception as err:
                 print(err)

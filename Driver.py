@@ -1,13 +1,10 @@
 import SimpleGapUpScalper
 import GetGapUps
 import pandas as pd
-import multiprocessing
 import time
 from datetime import datetime
-import gc
 import traceback
 import sys
-from ib_insync.ib import IB
 
 scalper = SimpleGapUpScalper.GapUpScalper_Driver()
 get_gappers_class = GetGapUps.GetGapper_Driver()
@@ -35,15 +32,6 @@ def check_time():
     return StartTime, TimeNow, EndTime, time_until_market_close
 
 
-def sell_stock(ticker, qty):
-    try:
-        # sell if you've bought already and haven't sold 5 minutes before close
-        scalper.sell_stock(ticker, qty)
-        sys.exit(0)
-    except Exception as err:
-        print(err)
-
-
 def generate_gapper_CSV():
 
     today = datetime.today().strftime('%Y-%m-%d')
@@ -68,6 +56,7 @@ if __name__ == "__main__":
     start_time, time_now, end_time, time_until_market_close = check_time()
 
     for ticker, premarket_high in zip(tickers, premarket_highs):
+
         scalper.buy_stock(ticker, premarket_high)
         time.sleep(time_until_market_close - 900)
         scalper.sell_stock()
