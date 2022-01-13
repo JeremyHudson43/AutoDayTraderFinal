@@ -79,7 +79,9 @@ class GapUpScalper_Driver():
                if o.action == 'SELL':
                    o.parentId = o.parentId * multiplier
 
-               order_list.append(o)
+               if o.action == 'BUY':
+                  order_list.append(o)
+
                ib.placeOrder(ticker_contract, o)
 
            return order_list
