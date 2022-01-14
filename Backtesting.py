@@ -95,7 +95,7 @@ for file in os.listdir(directory):
                     yesterday_close = yesterday_close['close'].to_list()[-1]
 
                     if market_open > yesterday_close * 1.05 and total_premarket_volume > 150000 \
-                        and market_high > premarket_high and total_premarket_volume > five_percent_of_float:
+                        and market_high > premarket_high:
 
                         bought = False
                         stop_loss = False

@@ -50,34 +50,38 @@ class GapUpScalper_Driver():
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
-           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                 ' which is ' + str(pct_difference) + '% of your account ')
+           print(100 - self.get_percent(ticker_close.marketPrice(), limit_price))
 
-           print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
-                 + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
+           if 100 - self.get_percent(ticker_close.marketPrice(), limit_price) < 1:
 
-           entry_order = ib.bracketOrder(
-               'BUY',
-               qty,
-               limitPrice=limit_price,
-               takeProfitPrice=take_profit,
-               stopLossPrice=stop_loss_price
-           )
+               print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                     ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                     ' which is ' + str(pct_difference) + '% of your account ')
 
-           for o in entry_order:
+               print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
+                     + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
 
-               o.orderId = o.orderId * multiplier
+               entry_order = ib.bracketOrder(
+                   'BUY',
+                   qty,
+                   limitPrice=limit_price,
+                   takeProfitPrice=take_profit,
+                   stopLossPrice=stop_loss_price
+               )
 
-               if o.action == 'SELL':
-                   o.parentId = o.parentId * multiplier
+               for o in entry_order:
 
-               if o.action == 'BUY':
-                  order_list.append(o)
+                   o.orderId = o.orderId * multiplier
 
-               ib.placeOrder(ticker_contract, o)
+                   if o.action == 'SELL':
+                       o.parentId = o.parentId * multiplier
 
-           return order_list
+                   if o.action == 'BUY':
+                      order_list.append(o)
+
+                   ib.placeOrder(ticker_contract, o)
+
+               return order_list
 
        else:
         return None
