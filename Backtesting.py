@@ -95,7 +95,7 @@ for file in os.listdir(directory):
                     yesterday_close = yesterday_close['close'].to_list()[-1]
 
                     if market_open > yesterday_close * 1.05 and total_premarket_volume > 150000 \
-                        and market_high > premarket_high:
+                        and market_high > premarket_high and total_premarket_volume > five_percent_of_float:
 
                         bought = False
                         stop_loss = False
@@ -136,6 +136,8 @@ for file in os.listdir(directory):
 
                         df_to_save = pd.DataFrame()
 
+                        vf_ratio = get_percent(total_premarket_volume, stock_float)
+
                         print("Stock", stock)
                         print("Market Low", market_low)
                         print("Market High", market_high)
@@ -151,6 +153,7 @@ for file in os.listdir(directory):
                         print('Bought?', bought)
                         print('Stop Loss?', stop_loss)
                         print('Take Profit?', take_profit)
+                        print('V/F Ratio', round(vf_ratio, 2))
 
                         df_to_save['stock'] = [stock]
                         df_to_save['market_low'] = [market_low]
@@ -168,6 +171,7 @@ for file in os.listdir(directory):
                         df_to_save['stop_loss'] = [stop_loss]
                         df_to_save['take_profit'] = [take_profit]
                         df_to_save['stock_float'] = [stock_float]
+                        df_to_save['VF_Ratio'] = [round(vf_ratio, 2)]
                         df_to_save.to_csv('C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv')
 
                         limit_price = float(str(round(premarket_high * 1.005, 2)))
