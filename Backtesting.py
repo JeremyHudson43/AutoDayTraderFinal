@@ -4,6 +4,7 @@ import finviz
 import os
 import time
 import sys
+import plotly.graph_objects as go
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -85,7 +86,9 @@ for file in os.listdir(directory):
                 total_premarket_volume = sum(premarket_df['volume'].tolist()) * 100
                 five_percent_of_float = stock_float * 0.05
 
-                if len(market_df['open'].to_list()) > 0 and len(premarket_df['open'].to_list()) > 0 and len(yesterday_close['close'].to_list()) > 0:
+                if len(market_df['open'].to_list()) > 0 and len(premarket_df['open'].to_list()) > 0 \
+                        and len(yesterday_close['close'].to_list()) > 0:
+
                     market_open = market_df['open'].to_list()[0]
                     premarket_open = premarket_df['open'].to_list()[0]
 
@@ -93,6 +96,43 @@ for file in os.listdir(directory):
 
                     if market_open > yesterday_close * 1.05 and total_premarket_volume > 150000 \
                         and market_high > premarket_high:
+
+                        bought = False
+                        stop_loss = False
+                        take_profit = False
+
+                        for index, row in market_df.iterrows():
+                            if row['high'] >= premarket_high * 1.005:
+                                bought = True
+                            if row['low'] >= premarket_high * 1.005:
+                                bought = True
+                            if row['open'] >= premarket_high * 1.005:
+                                bought = True
+                            if row['close'] >= premarket_high * 1.005:
+                                bought = True
+
+                            if row['high'] >= premarket_high * 1.105 and bought:
+                                take_profit = True
+                            if row['low'] >= premarket_high * 1.105 and bought:
+                                take_profit = True
+                            if row['open'] >= premarket_high * 1.105 and bought:
+                                take_profit  = True
+                            if row['close'] >=  premarket_high * 1.105 and bought:
+                                take_profit = True
+
+                            if row['high'] <= premarket_high * 0.985 and bought and not take_profit:
+                                stop_loss  = True
+                            if row['low'] <= premarket_high * 0.985 and bought and not take_profit:
+                                stop_loss = True
+                            if row['open'] <= premarket_high * 0.985 and bought and not take_profit:
+                                stop_loss = True
+                            if row['close'] <= premarket_high * 0.985 and bought and not take_profit:
+                                stop_loss = True
+
+                        if take_profit:
+                            stop_loss = False
+                        if stop_loss:
+                            take_profit = False
 
                         df_to_save = pd.DataFrame()
 
@@ -106,6 +146,11 @@ for file in os.listdir(directory):
                         print("Premarket Volume", total_premarket_volume)
                         print('Date', date)
                         print('Market High is ' + str(round((get_percent(market_high, premarket_high) - 100), 2)) + '% higher than Premarket High')
+                        print('Market Low is ' + str(round(get_percent(market_high, market_low) - 100, 2)) + '% lower than Market High')
+                        print('Market Low is ' + str(round(get_percent(market_high, premarket_high) - 100, 2)) + '% lower than Premarket High')
+                        print('Bought?', bought)
+                        print('Stop Loss?', stop_loss)
+                        print('Take Profit?', take_profit)
 
                         df_to_save['stock'] = [stock]
                         df_to_save['market_low'] = [market_low]
@@ -116,8 +161,48 @@ for file in os.listdir(directory):
                         df_to_save['premarket_open'] = [premarket_open]
                         df_to_save['premarket_volume'] = [total_premarket_volume]
                         df_to_save['date'] = [date]
-                        df_to_save['change_between_highs'] = [str(round(get_percent(market_high, premarket_high) - 100, 2))  +'%']
+                        df_to_save['change_perc_between_highs'] = [round(get_percent(market_high, premarket_high) - 100, 2)]
+                        df_to_save['market_high_to_market_low'] = [round(get_percent(market_high, market_low) - 100, 2)]
+                        df_to_save['market_low_to_premarket_high'] = [round(get_percent(market_high, premarket_high) - 100, 2)]
+                        df_to_save['bought'] = [bought]
+                        df_to_save['stop_loss'] = [stop_loss]
+                        df_to_save['take_profit'] = [take_profit]
+                        df_to_save['stock_float'] = [stock_float]
                         df_to_save.to_csv('C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv')
+
+                        limit_price = float(str(round(premarket_high * 1.005, 2)))
+                        take_profit = float(str(round(premarket_high * 1.105, 2)))
+                        stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
+
+                        # print market data as candle chart
+
+                        # add a horizontal line to indicate the buy time at half a percent higher than premarket high
+                        # add a horizontal line to indicate the stop loss at 1.5% lower than premarket high
+                        # add a horizontal line to indicate the buy time at half a percent lower than premarket low
+                        layout = {
+                            "xaxis": {
+                                "rangeslider": {
+                                    "visible": False
+                                }
+                            }
+                        }
+
+                        fig = go.Figure(data=[go.Candlestick(x=market_df['date'],
+                                                             open=market_df['open'],
+                                                             high=market_df['high'],
+                                                             low=market_df['low'],
+                                                             close=market_df['close'])],
+                                        layout=layout)
+
+                        fig.add_hrect(y0=stop_loss_price, y1=limit_price, line_width=0, fillcolor="red",
+                                      opacity=0.2)
+
+                        fig.add_hrect(y0=limit_price, y1=take_profit, line_width=0, fillcolor="blue",
+                                      opacity=0.2)
+
+                        fig.add_hline(y=premarket_high*1.005, annotation_text="Premarket High")
+
+                        fig.write_image("graph_records\\" + stock + ".png", width=600, height=350, scale=2)
 
             except Exception as err:
                print(err)

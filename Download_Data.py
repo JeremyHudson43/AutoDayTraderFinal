@@ -17,10 +17,10 @@ directory = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_ca
 
 for ticker in stock_list:
 
-    print([x[:-4] for x in os.listdir(directory)])
-    print(ticker['Ticker'])
-
     if ticker['Ticker'] not in [x[:-4] for x in os.listdir(directory)]:
+
+        print(len([x[:-4] for x in os.listdir(directory)]))
+        print(ticker['Ticker'])
 
         ticker = ticker['Ticker']
 
