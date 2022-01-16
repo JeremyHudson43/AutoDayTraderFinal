@@ -128,19 +128,14 @@ for file in os.listdir(directory):
                             if row['close'] >=  premarket_high * 1.155 and bought:
                                 take_profit = True
 
-                            if row['high'] <= premarket_high * 0.975 and bought and not take_profit:
+                            if row['high'] >= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss  = True
-                            if row['low'] <= premarket_high * 0.975 and bought and not take_profit:
+                            if row['low'] >= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-                            if row['open'] <= premarket_high * 0.975 and bought and not take_profit:
+                            if row['open'] >= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-                            if row['close'] <= premarket_high * 0.975 and bought and not take_profit:
+                            if row['close'] >= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-
-                        if take_profit:
-                            stop_loss = False
-                        if stop_loss:
-                            take_profit = False
 
                         if take_profit:
                             stop_loss = False
@@ -219,7 +214,7 @@ for file in os.listdir(directory):
 
                         limit_price = float(str(round(premarket_high * 1.005, 2)))
                         take_profit = float(str(round(premarket_high * 1.155, 2)))
-                        stop_loss_price = float(str(round(premarket_high * 0.975, 2)))
+                        stop_loss_price = float(str(round(premarket_high * 0.995, 2)))
 
                         fig = go.Figure(data=[go.Candlestick(x=market_df['date'],
                                                           open=market_df['open'],
@@ -228,7 +223,7 @@ for file in os.listdir(directory):
                                                           close=market_df['close'])],
                                      layout=layout)
 
-                        fig.add_hrect(y0=stop_loss_price, y1=limit_price *0.99999, line_width=0, fillcolor="red",
+                        fig.add_hrect(y0=stop_loss_price, y1=limit_price, line_width=0, fillcolor="red",
                                        opacity=0.2)
 
                         fig.add_hrect(y0=limit_price, y1=take_profit, line_width=0, fillcolor="blue",
