@@ -133,9 +133,9 @@ for file in os.listdir(directory):
 
                             market_df_final['bought'] = market_df['close'] >= price_to_keep
 
-                            market_df_final = market_df_final[market_df_final['bought'] == True]
+                            market_df_time = market_df_final[market_df_final['bought'] == True]
 
-                            start_time = market_df_final['date'].to_list()[0]
+                            start_time = market_df_time['date'].to_list()[0]
 
                             market_df_final = market_df_final[market_df_final['date'] > start_time]
 
