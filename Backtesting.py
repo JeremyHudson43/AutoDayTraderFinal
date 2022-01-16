@@ -107,25 +107,25 @@ for file in os.listdir(directory):
                         take_profit = False
 
                         for index, row in market_df.iterrows():
-                            if row['high'] >= premarket_high * 1.005:
+                            if row['high'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
                                 bought = True
-                            if row['low'] >= premarket_high * 1.005:
+                            if row['low'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
                                 bought = True
-                            if row['open'] >= premarket_high * 1.005:
+                            if row['open'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
                                 bought = True
-                            if row['close'] >= premarket_high * 1.005:
+                            if row['close'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
                                 bought = True
 
                             if bought:
                                 low_prices.append(row['low'])
 
-                            if row['high'] >= premarket_high * 1.155 and bought:
+                            if row['high'] >= premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit = True
-                            if row['low'] >= premarket_high * 1.155 and bought:
+                            if row['low'] >= premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit = True
-                            if row['open'] >= premarket_high * 1.155 and bought:
+                            if row['open'] >= premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit  = True
-                            if row['close'] >=  premarket_high * 1.155 and bought:
+                            if row['close'] >=  premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit = True
 
                             if row['high'] <= premarket_high * 0.995 and bought and not take_profit:
@@ -136,7 +136,6 @@ for file in os.listdir(directory):
                                 stop_loss = True
                             if row['close'] <= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-
 
                         if bought and not stop_loss and not take_profit:
                             sell_at_end_of_day = True
