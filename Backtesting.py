@@ -146,6 +146,11 @@ for file in os.listdir(directory):
                         if stop_loss:
                             take_profit = False
 
+                        if bought and not stop_loss and not take_profit:
+                            sell_at_end_of_day = True
+                        else:
+                            sell_at_end_of_day = False
+
                         df_to_save = pd.DataFrame()
 
                         lowest_price_after_PM_high_break = round(min(low_prices), 2)
@@ -167,6 +172,7 @@ for file in os.listdir(directory):
                         print('Stop Loss?', stop_loss)
                         print('Take Profit?', take_profit)
                         print('V/F Ratio', round(vf_ratio, 2))
+                        print('Sell at days end?', sell_at_end_of_day)
 
                         df_to_save['stock'] = [stock]
                         df_to_save['market_low'] = [market_low]
@@ -188,6 +194,7 @@ for file in os.listdir(directory):
                         df_to_save['take_profit'] = [take_profit]
                         df_to_save['stock_float'] = [stock_float]
                         df_to_save['VF_Ratio'] = [round(vf_ratio, 2)]
+                        df_to_save['sell_at_end_of_day'] = [sell_at_end_of_day]
 
                         csv_path = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv'
 
@@ -222,7 +229,7 @@ for file in os.listdir(directory):
                         fig.add_hrect(y0=limit_price, y1=take_profit, line_width=0, fillcolor="blue",
                                        opacity=0.2)
 
-                        fig.add_hline(y=premarket_high * 1.005, annotation_text="Premarket High * 1.005")
+                        fig.add_hline(y=limit_price, annotation_text="Premarket High * 1.005")
 
                         fig.write_image("graph_records\\" + stock + ".png", width=600, height=350, scale=2)
 
