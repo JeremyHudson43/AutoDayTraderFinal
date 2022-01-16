@@ -137,14 +137,15 @@ for file in os.listdir(directory):
 
                             start_time = market_df_final['date'].to_list()[0]
 
-                            market_df_final['start_time'] = market_df['date'] > start_time
+                            market_df_final = market_df_final[market_df_final['date'] > start_time]
 
-                            market_df_final = market_df_final[market_df_final['start_time'] == True]
+                            market_df_final['highest'] = market_df_final['close'].cummax()  # take the cumulative max
 
                             print(market_df_final)
 
-                            market_df_final['highest'] = market_df_final['close'].cummax()  # take the cumulative max
-                            market_df_final['trailingstop'] = market_df_final['highest'] * 0.95  # subtract 1% of the max
+                            # time.sleep(50)
+
+                            market_df_final['trailingstop'] = market_df_final['highest'] * 0.94 # subtract 1% of the max
                             market_df_final['exit_signal'] = market_df_final['close'] < market_df_final['trailingstop']
 
                             market_df_final = market_df_final[market_df_final['exit_signal'] == True].iloc[0]
@@ -189,15 +190,10 @@ for file in os.listdir(directory):
                             df_to_save['change_perc_between_highs'] = [round(get_percent(market_high, premarket_high) - 100, 2)]
                             df_to_save['market_high_to_market_low'] = [round(get_percent(market_high, market_low) - 100, 2)]
                             df_to_save['market_low_to_premarket_high'] = [round(get_percent(market_high, premarket_high) - 100, 2)]
-                            # df_to_save['lowest_price_after_breaking_above_premarket_high'] = [round(min(low_prices), 2)]
-                            # df_to_save['lowest_price_after_breaking_above_premarket_high_perc_diff'] = \
-                                # round(get_percent(lowest_price_after_PM_high_break, premarket_high) - 100, 2)
-                            df_to_save['bought'] = [bought]
-                            df_to_save['stop_loss'] = [stop_loss]
-                            df_to_save['take_profit'] = [take_profit]
                             df_to_save['stock_float'] = [stock_float]
                             df_to_save['VF_Ratio'] = [round(vf_ratio, 2)]
                             df_to_save['trailing_stop'] = [trailing_stop]
+                            df_to_save['trailing_stop_percent_diff'] = [round(get_percent(trailing_stop, premarket_high * 1.005) - 100, 2)]
 
                             csv_path = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results_days\\' + stock + '.csv'
 
