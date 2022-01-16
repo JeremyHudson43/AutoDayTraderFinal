@@ -128,19 +128,15 @@ for file in os.listdir(directory):
                             if row['close'] >=  premarket_high * 1.155 and bought:
                                 take_profit = True
 
-                            if row['high'] >= premarket_high * 0.995 and bought and not take_profit:
+                            if row['high'] <= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss  = True
-                            if row['low'] >= premarket_high * 0.995 and bought and not take_profit:
+                            if row['low'] <= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-                            if row['open'] >= premarket_high * 0.995 and bought and not take_profit:
+                            if row['open'] <= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
-                            if row['close'] >= premarket_high * 0.995 and bought and not take_profit:
+                            if row['close'] <= premarket_high * 0.995 and bought and not take_profit:
                                 stop_loss = True
 
-                        if take_profit:
-                            stop_loss = False
-                        if stop_loss:
-                            take_profit = False
 
                         if bought and not stop_loss and not take_profit:
                             sell_at_end_of_day = True
