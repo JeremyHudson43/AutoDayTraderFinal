@@ -37,9 +37,9 @@ def get_percent(first, second):
         percent = first / second * 100
     return percent
 
-directory = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_records'
+directory = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_records_days'
 
-results_dir = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results'
+results_dir = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results_days'
 
 for file in os.listdir(directory):
 
@@ -102,44 +102,45 @@ for file in os.listdir(directory):
 
                     if market_open >= yesterday_close * 1.05 and market_high > premarket_high and vf_ratio > 5:
 
-                        limit_price = float(str(round(premarket_high * 1.005, 2)))
-                        take_profit = float(str(round(premarket_high * 1.155, 2)))
-                        stop_loss_price = float(str(round(premarket_high * 0.975, 2)))
-
                         bought = False
                         stop_loss = False
                         take_profit = False
 
                         for index, row in market_df.iterrows():
-                            if row['high'] >= limit_price:
+                            if row['high'] >= premarket_high * 1.005:
                                 bought = True
-                            if row['low'] >= limit_price:
+                            if row['low'] >= premarket_high * 1.005:
                                 bought = True
-                            if row['open'] >= limit_price:
+                            if row['open'] >= premarket_high * 1.005:
                                 bought = True
-                            if row['close'] >= limit_price:
+                            if row['close'] >= premarket_high * 1.005:
                                 bought = True
 
                             if bought:
                                 low_prices.append(row['low'])
 
-                            if row['high'] >= take_profit and bought:
+                            if row['high'] >= premarket_high * 1.155 and bought:
                                 take_profit = True
-                            if row['low'] >= take_profit and bought:
+                            if row['low'] >= premarket_high * 1.155 and bought:
                                 take_profit = True
-                            if row['open'] >= take_profit and bought:
+                            if row['open'] >= premarket_high * 1.155 and bought:
                                 take_profit  = True
-                            if row['close'] >=  take_profit and bought:
+                            if row['close'] >=  premarket_high * 1.155 and bought:
                                 take_profit = True
 
-                            if row['high'] <= stop_loss_price and bought and not take_profit:
+                            if row['high'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss  = True
-                            if row['low'] <= stop_loss_price and bought and not take_profit:
+                            if row['low'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss = True
-                            if row['open'] <= stop_loss_price and bought and not take_profit:
+                            if row['open'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss = True
-                            if row['close'] <= stop_loss_price and bought and not take_profit:
+                            if row['close'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss = True
+
+                        if take_profit:
+                            stop_loss = False
+                        if stop_loss:
+                            take_profit = False
 
                         if take_profit:
                             stop_loss = False
@@ -196,7 +197,7 @@ for file in os.listdir(directory):
                         df_to_save['VF_Ratio'] = [round(vf_ratio, 2)]
                         df_to_save['sell_at_end_of_day'] = [sell_at_end_of_day]
 
-                        csv_path = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results\\' + stock + '.csv'
+                        csv_path = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results_days\\' + stock + '.csv'
 
                         if not exists(csv_path):
                             df_to_save.to_csv(csv_path)
@@ -216,6 +217,10 @@ for file in os.listdir(directory):
                             }
                         }
 
+                        limit_price = float(str(round(premarket_high * 1.005, 2)))
+                        take_profit = float(str(round(premarket_high * 1.155, 2)))
+                        stop_loss_price = float(str(round(premarket_high * 0.975, 2)))
+
                         fig = go.Figure(data=[go.Candlestick(x=market_df['date'],
                                                           open=market_df['open'],
                                                           high=market_df['high'],
@@ -223,7 +228,7 @@ for file in os.listdir(directory):
                                                           close=market_df['close'])],
                                      layout=layout)
 
-                        fig.add_hrect(y0=stop_loss_price, y1=limit_price, line_width=0, fillcolor="red",
+                        fig.add_hrect(y0=stop_loss_price, y1=limit_price *0.99999, line_width=0, fillcolor="red",
                                        opacity=0.2)
 
                         fig.add_hrect(y0=limit_price, y1=take_profit, line_width=0, fillcolor="blue",
