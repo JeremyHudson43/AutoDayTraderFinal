@@ -127,7 +127,6 @@ for file in os.listdir(directory):
                                 price_to_keep = row['close']
 
                         if bought and index > 0:
-                            print('index' ,index)
                             # time.sleep(5)
 
                             market_df_final = market_df
@@ -136,9 +135,13 @@ for file in os.listdir(directory):
 
                             market_df_final = market_df_final[market_df_final['bought'] == True]
 
-                            print(market_df_final)
+                            start_time = market_df_final['date'].to_list()[0]
 
-                            time.sleep(1)
+                            market_df_final['start_time'] = market_df['date'] > start_time
+
+                            market_df_final = market_df_final[market_df_final['start_time'] == True]
+
+                            print(market_df_final)
 
                             market_df_final['highest'] = market_df_final['close'].cummax()  # take the cumulative max
                             market_df_final['trailingstop'] = market_df_final['highest'] * 0.95  # subtract 1% of the max
