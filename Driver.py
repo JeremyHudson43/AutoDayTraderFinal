@@ -73,13 +73,7 @@ if __name__ == "__main__":
 
             multiplier = multiplier + 1
 
-            order_list = scalper.buy_stock(ticker, premarket_high, multiplier, ib)
-
-            if order_list is not None:
-                orders = orders + order_list
-
-        if len(orders) > 0 and order_list is not None:
-            ib.oneCancelsAll(orders, 'group', 1)
+            scalper.buy_stock(ticker, premarket_high, multiplier, ib)
             time.sleep(time_until_market_close - 900)
             scalper.sell_stock(ib)
 

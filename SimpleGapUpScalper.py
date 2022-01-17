@@ -16,32 +16,29 @@ class GapUpScalper_Driver():
 
        ticker = ib.positions()[0]
        qty = [v.position for v in ib.positions()][0]
+       
+       if qty > 0:
+           ticker_contract = Stock(ticker, 'SMART', 'USD')
 
-       ticker_contract = Stock(ticker, 'SMART', 'USD')
+           order = Order(orderId=30, action='Sell', orderType='MKT', totalQuantity=qty)
 
-       order = Order(orderId=15, action='Sell', orderType='MKT', totalQuantity=qty)
+           ib.placeOrder(ticker_contract, order)
 
-       ib.placeOrder(ticker_contract, order)
+           print('Sold ' + str(ticker) +  "!")
 
-       print('Sold ' + str(ticker) +  "!")
-
-       time.sleep(10)
+           time.sleep(10)
 
     def buy_stock(self, ticker, premarket_high, multiplier, ib):
-
-       order_list = []
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
 
        [ticker_close] = ib.reqTickers(ticker_contract)
 
-       if premarket_high < ticker_close.marketPrice() * 1.09:
+       if premarket_high * 1.005 < ticker_close.marketPrice() * 1.095:
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
            limit_price = float(str(round(premarket_high * 1.005, 2)))
-           take_profit = float(str(round(premarket_high * 1.105, 2)))
-           stop_loss_price = float(str(round(premarket_high * 0.985, 2)))
 
            percent_of_acct_to_trade = 0.05
 
@@ -52,36 +49,20 @@ class GapUpScalper_Driver():
 
            print(100 - self.get_percent(ticker_close.marketPrice(), limit_price))
 
-           if 100 - self.get_percent(ticker_close.marketPrice(), limit_price) < 1:
+           if 100 - self.get_percent(ticker_close.marketPrice(), limit_price) < 0.2:
 
                print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
                      ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
                      ' which is ' + str(pct_difference) + '% of your account ')
 
-               print('\nYou set a buy limit order for $' + str(limit_price) + ', a take profit at $'
-                     + str(take_profit) + ' and a stop loss at $' + str(stop_loss_price))
+               buy_order = Order(orderId=15 * multiplier, action='BUY', orderType='LMT', totalQuantity=qty, lmtPrice=limit_price)
 
-               entry_order = ib.bracketOrder(
-                   'BUY',
-                   qty,
-                   limitPrice=limit_price,
-                   takeProfitPrice=take_profit,
-                   stopLossPrice=stop_loss_price
-               )
+               ib.placeOrder(ticker_contract, buy_order)
 
-               for o in entry_order:
+               while not buy_order.isDone():
+                   time.sleep(1)
 
-                   o.orderId = o.orderId * multiplier
+               sell_order = Order(orderId=5 * multiplier, action='Sell', orderType='TRAIL',
+                             trailingPercent=2, totalQuantity=qty)
 
-                   if o.action == 'SELL':
-                       o.parentId = o.parentId * multiplier
-
-                   if o.action == 'BUY':
-                      order_list.append(o)
-
-                   ib.placeOrder(ticker_contract, o)
-
-               return order_list
-
-       else:
-        return None
+               ib.placeOrder(ticker_contract, sell_order)
