@@ -102,7 +102,7 @@ for file in os.listdir(directory):
 
                     vf_ratio = get_percent(total_premarket_volume, stock_float)
 
-                    if market_open >= yesterday_close * 1.05 and market_high > premarket_high and vf_ratio > 5:
+                    if market_open >= yesterday_close * 1.05 and market_high > premarket_high and vf_ratio > 1:
 
                         market_df = dataframe_obj[dataframe_obj["date"].between(premarket_end, market_end)]
 
@@ -139,14 +139,14 @@ for file in os.listdir(directory):
 
                             market_df_final = market_df_final[market_df_final['date'] > start_time]
 
-                            market_df_final['highest'] = market_df_final['close'].cummax()  # take the cumulative max
+                            market_df_final['highest'] = market_df_final['low'].cummax()  # take the cumulative max
 
                             print(market_df_final)
 
                             # time.sleep(50)
 
                             market_df_final['trailingstop'] = market_df_final['highest'] * 0.94 # subtract 1% of the max
-                            market_df_final['exit_signal'] = market_df_final['close'] < market_df_final['trailingstop']
+                            market_df_final['exit_signal'] = market_df_final['low'] < market_df_final['trailingstop']
 
                             market_df_final = market_df_final[market_df_final['exit_signal'] == True].iloc[0]
 
