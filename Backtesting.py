@@ -38,7 +38,6 @@ def get_percent(first, second):
     return percent
 
 directory = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_records_days'
-
 results_dir = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results_days'
 
 for file in os.listdir(directory):
@@ -106,36 +105,54 @@ for file in os.listdir(directory):
                         stop_loss = False
                         take_profit = False
 
+                        bought_price = 0
+                        take_profit_price = 0
+                        stop_loss_price = 0
+
                         for index, row in market_df.iterrows():
-                            if row['high'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
+
+                            if row['open'] >= premarket_high * 1.005 and not stop_loss and not take_profit and not bought:
                                 bought = True
-                            if row['low'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
+                                bought_price = row['open']
+                            elif row['close'] >= premarket_high * 1.005 and not stop_loss and not take_profit and not bought:
                                 bought = True
-                            if row['open'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
+                                bought_price = row['close']
+                            elif row['high'] >= premarket_high * 1.005 and not stop_loss and not take_profit and not bought:
                                 bought = True
-                            if row['close'] >= premarket_high * 1.005 and not stop_loss and not take_profit:
+                                bought_price = row['high']
+                            elif row['low'] >= premarket_high * 1.005 and not stop_loss and not take_profit and not bought:
                                 bought = True
+                                bought_price = row['low']
 
                             if bought:
                                 low_prices.append(row['low'])
 
-                            if row['high'] >= premarket_high * 1.155 and bought and not stop_loss:
-                                take_profit = True
-                            if row['low'] >= premarket_high * 1.155 and bought and not stop_loss:
-                                take_profit = True
                             if row['open'] >= premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit  = True
-                            if row['close'] >=  premarket_high * 1.155 and bought and not stop_loss:
+                                take_profit_price = row['open']
+                            elif row['close'] >=  premarket_high * 1.155 and bought and not stop_loss:
                                 take_profit = True
+                                take_profit_price = row['close']
+                            elif row['high'] >= premarket_high * 1.155 and bought and not stop_loss:
+                                take_profit = True
+                                take_profit_price = row['high']
+                            elif row['low'] >= premarket_high * 1.155 and bought and not stop_loss:
+                                take_profit = True
+                                take_profit_price = row['low']
 
-                            if row['high'] <= premarket_high * 0.995 and bought and not take_profit:
+                            if row['open'] <= premarket_high * 0.975 and bought and not take_profit:
+                                stop_loss = True
+                                stop_loss_price = row['open']
+                            elif row['close'] <= premarket_high * 0.975 and bought and not take_profit:
+                                stop_loss = True
+                                stop_loss_price = row['close']
+                            elif row['high'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss  = True
-                            if row['low'] <= premarket_high * 0.995 and bought and not take_profit:
+                                stop_loss_price = row['high']
+                            elif row['low'] <= premarket_high * 0.975 and bought and not take_profit:
                                 stop_loss = True
-                            if row['open'] <= premarket_high * 0.995 and bought and not take_profit:
-                                stop_loss = True
-                            if row['close'] <= premarket_high * 0.995 and bought and not take_profit:
-                                stop_loss = True
+                                stop_loss_price = row['low']
+
 
                         if bought and not stop_loss and not take_profit:
                             sell_at_end_of_day = True
@@ -164,6 +181,9 @@ for file in os.listdir(directory):
                         print('Take Profit?', take_profit)
                         print('V/F Ratio', round(vf_ratio, 2))
                         print('Sell at days end?', sell_at_end_of_day)
+                        print('Bought Price', bought_price)
+                        print('Take Profit Price', take_profit_price)
+                        print('Stop Loss Price', stop_loss_price)
 
                         df_to_save['stock'] = [stock]
                         df_to_save['market_low'] = [market_low]
@@ -186,6 +206,9 @@ for file in os.listdir(directory):
                         df_to_save['stock_float'] = [stock_float]
                         df_to_save['VF_Ratio'] = [round(vf_ratio, 2)]
                         df_to_save['sell_at_end_of_day'] = [sell_at_end_of_day]
+                        df_to_save['bought_price'] = [bought_price]
+                        df_to_save['take_profit_price'] = [take_profit_price]
+                        df_to_save['stop_loss_price'] = [stop_loss_price]
 
                         csv_path = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\small_cap_results_days\\' + stock + '.csv'
 
