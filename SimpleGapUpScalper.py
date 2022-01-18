@@ -12,27 +12,23 @@ class GapUpScalper_Driver():
             percent = first / second * 100
         return percent
 
-    def sell_stock(self, ib):
+    def sell_stock(self, ib, qty, ticker):
 
        ib.reqGlobalCancel()
-       
-       if len(ib.openOrders()) > 0 and len([v.position for v in ib.positions()][0]) > 0:
 
-           ticker = ib.positions()[0]
-           qty = [v.position for v in ib.positions()][0]
-    
-           if qty > 0:
-               ticker_contract = Stock(ticker, 'SMART', 'USD')
-    
-               order = Order(orderId=30, action='Sell', orderType='MKT', totalQuantity=qty)
-    
-               ib.placeOrder(ticker_contract, order)
-    
-               print('Sold ' + str(ticker) +  "!")
-    
-               time.sleep(10)
-    
-               sys.exit(0)
+       if qty > 0:
+
+           ticker_contract = Stock(ticker, 'SMART', 'USD')
+
+           order = Order(orderId=30, action='Sell', orderType='MKT', totalQuantity=qty)
+
+           ib.placeOrder(ticker_contract, order)
+
+           print('Sold ' + str(ticker) +  "!")
+
+           time.sleep(10)
+
+           sys.exit(0)
 
     def buy_stock(self, ticker, premarket_high, multiplier, ib, purchased):
 
@@ -63,23 +59,23 @@ class GapUpScalper_Driver():
            print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
            print("")
 
-           # if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
+           if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
 
-           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                 ' which is ' + str(pct_difference) + '% of your account ')
+               print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                     ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                     ' which is ' + str(pct_difference) + '% of your account ')
 
-           buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
+               buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
-           ib.placeOrder(ticker_contract, buy_order)
+               ib.placeOrder(ticker_contract, buy_order)
 
-           time.sleep(15)
+               time.sleep(15)
 
-           sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
-                         trailingPercent=2.0, totalQuantity=qty)
+               sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
+                             trailingPercent=2.0, totalQuantity=qty)
 
-           # ib.placeOrder(ticker_contract, sell_order)
+               ib.placeOrder(ticker_contract, sell_order)
 
-           purchased = True
+               purchased = True
 
-       return purchased
+       return purchased, qty, ticker

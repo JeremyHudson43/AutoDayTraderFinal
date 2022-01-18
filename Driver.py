@@ -77,10 +77,13 @@ if __name__ == "__main__":
             multiplier = multiplier + 1
 
             if not purchased:
-                purchased = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
+                purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
             elif purchased:
+
+                print('Purchased! Sleeping until 15 minutes before market close')
+
                 time.sleep(time_until_market_close - 900)
-                scalper.sell_stock(ib)
+                scalper.sell_stock(ib, qty, ticker)
 
         time.sleep(5)
 
