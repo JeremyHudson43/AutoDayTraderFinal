@@ -53,23 +53,23 @@ class GapUpScalper_Driver():
 
            print(abs(limit_market_difference))
 
-           if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
+           # if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
 
-               print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                     ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                     ' which is ' + str(pct_difference) + '% of your account ')
+           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                 ' which is ' + str(pct_difference) + '% of your account ')
 
-               buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
+           buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
-               ib.placeOrder(ticker_contract, buy_order)
+           ib.placeOrder(ticker_contract, buy_order)
 
-               time.sleep(15)
+           time.sleep(15)
 
-               sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
-                             trailingPercent=2, totalQuantity=qty, parentId=5 * multiplier)
+           sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
+                         trailingPercent=2.0, totalQuantity=qty)
 
-               ib.placeOrder(ticker_contract, sell_order)
+           ib.placeOrder(ticker_contract, sell_order)
 
-               purchased = True
+           purchased = True
 
        return purchased
