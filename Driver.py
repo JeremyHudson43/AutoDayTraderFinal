@@ -61,6 +61,7 @@ if __name__ == "__main__":
     premarket_highs = df['Premarket High'].to_list()
 
     multiplier = 0
+    purchased = False
 
     start_time, time_now, end_time, time_until_market_close = check_time()
 
@@ -70,13 +71,16 @@ if __name__ == "__main__":
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
             print(ticker, premarket_high)
+            print("\n")
 
             multiplier = multiplier + 1
 
-            scalper.buy_stock(ticker, premarket_high, multiplier, ib)
-            time.sleep(time_until_market_close - 900)
-            scalper.sell_stock(ib)
+            if not purchased:
+                purchased = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
+            elif purchased:
+                time.sleep(time_until_market_close - 900)
+                scalper.sell_stock(ib)
 
-        time.sleep(15)
+        time.sleep(5)
 
     sys.exit(0)
