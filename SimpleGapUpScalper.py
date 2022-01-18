@@ -16,7 +16,7 @@ class GapUpScalper_Driver():
 
        ticker = ib.positions()[0]
        qty = [v.position for v in ib.positions()][0]
-       
+
        if qty > 0:
            ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -33,8 +33,10 @@ class GapUpScalper_Driver():
        ticker_contract = Stock(ticker, 'SMART', 'USD')
 
        [ticker_close] = ib.reqTickers(ticker_contract)
-
-       if premarket_high * 1.005 < ticker_close.marketPrice() * 1.095:
+       
+       within_limit_range = premarket_high * 1.005 < ticker_close.marketPrice() * 1.095
+       
+       if within_limit_range :
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
@@ -46,10 +48,12 @@ class GapUpScalper_Driver():
            qty = round(qty)
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
+           
+           limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price) 
 
-           print(100 - self.get_percent(ticker_close.marketPrice(), limit_price))
+           print(limit_market_difference)
 
-           if 100 - self.get_percent(ticker_close.marketPrice(), limit_price) < 0.2:
+           if limit_market_difference < 0.2:
 
                print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
                      ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
