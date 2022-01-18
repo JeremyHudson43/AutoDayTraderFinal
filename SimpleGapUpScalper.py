@@ -1,7 +1,7 @@
 import time
 from ib_insync.contract import Stock
 from ib_insync import Order
-
+import sys
 
 class GapUpScalper_Driver():
 
@@ -28,6 +28,8 @@ class GapUpScalper_Driver():
 
            time.sleep(10)
 
+           sys.exit(0)
+
     def buy_stock(self, ticker, premarket_high, multiplier, ib, purchased):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -51,25 +53,29 @@ class GapUpScalper_Driver():
 
            limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price)
 
-           print(abs(limit_market_difference))
+           print("Limit Price:", limit_price)
+           print("Current Price:", ticker_close.marketPrice())
 
-           # if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
+           print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
+           print("")
 
-           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
-                 ' which is ' + str(pct_difference) + '% of your account ')
+           if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
 
-           buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
+               print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                     ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                     ' which is ' + str(pct_difference) + '% of your account ')
 
-           ib.placeOrder(ticker_contract, buy_order)
+               buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
-           time.sleep(15)
+               ib.placeOrder(ticker_contract, buy_order)
 
-           sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
-                         trailingPercent=2.0, totalQuantity=qty)
+               time.sleep(15)
 
-           ib.placeOrder(ticker_contract, sell_order)
+               sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
+                             trailingPercent=2.0, totalQuantity=qty)
 
-           purchased = True
+               ib.placeOrder(ticker_contract, sell_order)
+
+               purchased = True
 
        return purchased
