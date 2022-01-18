@@ -76,4 +76,4 @@ class GapUpScalper_Driver():
 
            purchased = True
 
-       return purchased, qty, ticker
+           return purchased, qty, ticker
