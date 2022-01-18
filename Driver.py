@@ -71,7 +71,7 @@ if __name__ == "__main__":
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
             print(ticker, premarket_high)
-            print("\n")
+            print()
 
             multiplier = multiplier + 1
 

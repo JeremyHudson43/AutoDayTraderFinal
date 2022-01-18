@@ -36,7 +36,7 @@ class GapUpScalper_Driver():
 
        within_limit_range = premarket_high * 1.005 < ticker_close.marketPrice() * 1.095
 
-       if within_limit_range :
+       if within_limit_range:
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
@@ -59,15 +59,14 @@ class GapUpScalper_Driver():
                      ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
                      ' which is ' + str(pct_difference) + '% of your account ')
 
-               buy_order = Order(orderId=15 * multiplier, action='BUY', orderType='LMT', totalQuantity=qty, lmtPrice=limit_price)
+               buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
                ib.placeOrder(ticker_contract, buy_order)
 
-               while not buy_order.isDone():
-                   time.sleep(1)
+               time.sleep(15)
 
-               sell_order = Order(orderId=5 * multiplier, action='Sell', orderType='TRAIL',
-                             trailingPercent=2, totalQuantity=qty)
+               sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
+                             trailingPercent=2, totalQuantity=qty, parentId=5 * multiplier)
 
                ib.placeOrder(ticker_contract, sell_order)
 
