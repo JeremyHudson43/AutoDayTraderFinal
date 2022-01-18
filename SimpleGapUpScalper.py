@@ -51,9 +51,9 @@ class GapUpScalper_Driver():
 
            limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price)
 
-           print(limit_market_difference)
+           print(abs(limit_market_difference))
 
-           if limit_market_difference < 0.2:
+           if abs(limit_market_difference) < 0.5:
 
                print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
                      ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
