@@ -2,6 +2,7 @@ import time
 from ib_insync.contract import Stock
 from ib_insync import Order
 import sys
+from math import floor
 
 class GapUpScalper_Driver():
 
@@ -53,7 +54,7 @@ class GapUpScalper_Driver():
            percent_of_acct_to_trade = 0.05
 
            qty = (acc_vals // limit_price) * percent_of_acct_to_trade
-           qty = round(qty)
+           qty = floor(qty)
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
