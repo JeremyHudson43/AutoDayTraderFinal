@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     start_time, time_now, end_time, time_until_market_close = check_time()
 
-    while time_now < end_time and time_until_market_close > 600:
+    while time_until_market_close > 600:
         start_time, time_now, end_time, time_until_market_close = check_time()
 
         multiplier = 0
