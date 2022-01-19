@@ -37,7 +37,7 @@ class GapUpScalper_Driver():
 
        [ticker_close] = ib.reqTickers(ticker_contract)
 
-       limit_price = float(str(round(premarket_high * 1.005, 2)))
+       limit_price = float(str(round(premarket_high, 2)))
 
        limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price)
 
@@ -47,11 +47,11 @@ class GapUpScalper_Driver():
        print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
        print("")
 
-       if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() >= limit_price:
+       if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() > limit_price:
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-           percent_of_acct_to_trade = 0.05
+           percent_of_acct_to_trade = 0.03
 
            qty = (acc_vals // limit_price) * percent_of_acct_to_trade
            qty = floor(qty)
@@ -59,14 +59,15 @@ class GapUpScalper_Driver():
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
            print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * limit_price)) + ' USD' +
+                 ' for a total of $' + str(round(qty * ticker_close.marketPrice())) + ' USD' +
                  ' which is ' + str(pct_difference) + '% of your account ')
 
            buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
-           ib.placeOrder(ticker_contract, buy_order)
+           place_buy = ib.placeOrder(ticker_contract, buy_order)
 
-           time.sleep(15)
+           while not place_buy.isDone():
+               ib.waitOnUpdate()
 
            sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
                          trailingPercent=2.0, totalQuantity=qty)
