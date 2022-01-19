@@ -41,7 +41,6 @@ class GapUpScalper_Driver():
 
        limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price)
 
-       print("Limit Price:", limit_price)
        print("Current Price:", ticker_close.marketPrice())
 
        print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
