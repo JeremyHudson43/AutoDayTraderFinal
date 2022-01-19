@@ -63,7 +63,7 @@ if __name__ == "__main__":
     time_until_market_close = check_time()
 
     while time_until_market_close > 600:
-        
+
         time_until_market_close = check_time()
         multiplier = 0
 
@@ -77,10 +77,9 @@ if __name__ == "__main__":
 
             if not purchased:
                 purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
-            elif purchased:
-
+            elif purchased:               
                 print('Purchased! Sleeping until 5 minutes before market close')
-
+                time_until_market_close = check_time()          
                 time.sleep(time_until_market_close - 300)
                 scalper.sell_stock(ib, qty, ticker)
 
