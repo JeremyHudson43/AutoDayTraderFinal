@@ -67,7 +67,7 @@ class GapUpScalper_Driver():
            place_buy = ib.placeOrder(ticker_contract, buy_order)
 
            while not place_buy.isDone():
-               ib.waitOnUpdate()
+               time.sleep(1)
 
            sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
                          trailingPercent=2.0, totalQuantity=qty)
