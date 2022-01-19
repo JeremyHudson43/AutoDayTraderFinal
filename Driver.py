@@ -34,7 +34,7 @@ def check_time():
         print(f"Sleeping for {wait} seconds")
         time.sleep(wait)
 
-    return StartTime, TimeNow, EndTime, time_until_market_close
+    return time_until_market_close
 
 
 def generate_gapper_CSV():
@@ -60,11 +60,11 @@ if __name__ == "__main__":
 
     purchased = False
 
-    start_time, time_now, end_time, time_until_market_close = check_time()
+    time_until_market_close = check_time()
 
     while time_until_market_close > 600:
-        start_time, time_now, end_time, time_until_market_close = check_time()
-
+        
+        time_until_market_close = check_time()
         multiplier = 0
 
         for ticker, premarket_high in zip(tickers, premarket_highs):
