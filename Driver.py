@@ -69,6 +69,7 @@ if __name__ == "__main__":
 
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
+            print('- - - - - - - - - ')
             print("Ticker", ticker)
             print("\nPremarket High", premarket_high)
 
