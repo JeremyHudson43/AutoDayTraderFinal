@@ -75,18 +75,13 @@ class GetGapper_Driver():
             try:
 
                 security = Stock(stock, 'SMART', 'USD')
+                [ticker_close] = ib.reqTickers(security)
+                price = ticker_close.marketPrice()
 
                 finviz_stock = finviz.get_stock(stock)
 
                 stock_float = self.value_to_float(finviz_stock['Shs Float'])
                 stock_sector = finviz_stock['Sector']
-
-                # request the fundamentals
-                fundamentals = ib.reqFundamentalData(security, 'ReportSnapshot')
-
-                soup = BeautifulSoup(str(fundamentals), 'xml')
-
-                price = float(soup.find('Ratio').text)
 
                 # Fetching historical data when market is closed for testing purposes
                 premarket_data = pd.DataFrame(
@@ -103,7 +98,8 @@ class GetGapper_Driver():
                 volume = sum(premarket_data['volume'].tolist()) * 100
                 ratio = self.get_percent(volume, stock_float)
 
-                if volume > 150000 and stock_float < 30000000:
+                if ratio > 5 and stock_float < 30000000:
+
                     print('Ticker', security.symbol)
                     print('Price', price)
                     print("Shares Float", stock_float)
