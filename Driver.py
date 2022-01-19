@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
             multiplier = multiplier + 1
 
-            if not purchased:
+            if not purchased and time_until_market_close > 600:
                 purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
             elif purchased:
 
