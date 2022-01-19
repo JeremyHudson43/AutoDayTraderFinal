@@ -51,8 +51,6 @@ def generate_gapper_CSV():
 
 if __name__ == "__main__":
 
-    orders = []
-
     check_time()
 
     df = generate_gapper_CSV()
@@ -60,13 +58,14 @@ if __name__ == "__main__":
     tickers = df['Ticker'].to_list()
     premarket_highs = df['Premarket High'].to_list()
 
-    multiplier = 0
     purchased = False
 
     start_time, time_now, end_time, time_until_market_close = check_time()
 
     while time_now < end_time:
         start_time, time_now, end_time, time_until_market_close = check_time()
+
+        multiplier = 0
 
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
@@ -80,11 +79,11 @@ if __name__ == "__main__":
                 purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
             elif purchased:
 
-                print('Purchased! Sleeping until 15 minutes before market close')
+                print('Purchased! Sleeping until 5 minutes before market close')
 
-                time.sleep(time_until_market_close - 900)
+                time.sleep(time_until_market_close - 300)
                 scalper.sell_stock(ib, qty, ticker)
 
-        time.sleep(5)
+        time.sleep(1)
 
     sys.exit(0)
