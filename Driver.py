@@ -70,8 +70,7 @@ if __name__ == "__main__":
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
             print("Ticker", ticker)
-            print("Premarket High", premarket_high)
-            print("")
+            print("\nPremarket High", premarket_high)
 
             multiplier = multiplier + 1
 
@@ -84,6 +83,6 @@ if __name__ == "__main__":
                 time.sleep(time_until_market_close - 300)
                 scalper.sell_stock(ib, qty, ticker)
 
-        time.sleep(1)
+        time.sleep(5)
 
     sys.exit(0)
