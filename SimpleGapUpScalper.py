@@ -21,7 +21,7 @@ class GapUpScalper_Driver():
 
            ticker_contract = Stock(ticker, 'SMART', 'USD')
 
-           order = Order(orderId=30, action='Sell', orderType='MKT', totalQuantity=qty)
+           order = Order(orderId=27, action='Sell', orderType='MKT', totalQuantity=qty)
 
            ib.placeOrder(ticker_contract, order)
 
@@ -42,9 +42,7 @@ class GapUpScalper_Driver():
        limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), limit_price)
 
        print("Current Price:", ticker_close.marketPrice())
-
        print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
-       print("")
 
        if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() > limit_price:
 
