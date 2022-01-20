@@ -68,6 +68,7 @@ class GapUpScalper_Driver():
         print('Checking for first breakout...')
 
         resistance_broke_one = False
+        
         if ticker_close.marketPrice() >= premarket_high * 1.05:
             resistance_broke_one = True
             print("\nResistance One Broke!")
