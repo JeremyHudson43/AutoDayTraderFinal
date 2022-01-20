@@ -15,13 +15,24 @@ get_gappers_class = GetGapUps.GetGapper_Driver()
 ib = IB()
 ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
+def sleep_until_market_open():
+    now = str(datetime.now().time())  # time object
+
+    StartTime = pd.to_datetime("9:30").tz_localize('America/New_York')
+    TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
+
+    time_until_market_open = (StartTime - TimeNow).total_seconds()
+
+    time.sleep(time_until_market_open)
+
+
 def check_time():
     ## STARTING THE ALGORITHM ##
     # Time frame: 6.30 hrs
 
     now = str(datetime.now().time())  # time object
 
-    StartTime = pd.to_datetime("9:30").tz_localize('America/New_York')
+    StartTime = pd.to_datetime("9:28").tz_localize('America/New_York')
     TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
     EndTime = pd.to_datetime("16:00").tz_localize('America/New_York')
 
@@ -62,6 +73,8 @@ if __name__ == "__main__":
 
     time_until_market_close = check_time()
 
+    sleep_until_market_open()
+
     while time_until_market_close > 600:
 
         time_until_market_close = check_time()
@@ -77,9 +90,9 @@ if __name__ == "__main__":
 
             if not purchased:
                 purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
-            elif purchased:               
+            elif purchased:
                 print('Purchased! Sleeping until 5 minutes before market close')
-                time_until_market_close = check_time()          
+                time_until_market_close = check_time()
                 time.sleep(time_until_market_close - 300)
                 scalper.sell_stock(ib, qty, ticker)
 
