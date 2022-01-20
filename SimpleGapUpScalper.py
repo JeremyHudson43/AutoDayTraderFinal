@@ -34,12 +34,12 @@ class GapUpScalper_Driver():
 
     def check_second_breakout(self, ticker, ib):
 
-        ticker_contract = Stock(ticker, 'SMART', 'USD')
-        [ticker_close] = ib.reqTickers(ticker_contract)
-
         highest_price = 0
 
         for x in range(6):
+
+            ticker_contract = Stock(ticker, 'SMART', 'USD')
+            [ticker_close] = ib.reqTickers(ticker_contract)
 
             time.sleep(5)
 
