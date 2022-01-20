@@ -64,6 +64,7 @@ if __name__ == "__main__":
 
     check_time()
 
+    record_df = pd.DataFrame()
     df = generate_gapper_CSV()
 
     tickers = df['Ticker'].to_list()
@@ -72,8 +73,13 @@ if __name__ == "__main__":
     purchased = False
 
     time_until_market_close = check_time()
-
     sleep_until_market_open()
+
+    final_tickers = []
+    resistance_list = []
+    resistance_broke_one_list = []
+    resistance_broke_two_list = []
+    time_resistance_one_broke_list = []
 
     while time_until_market_close > 600:
 
@@ -89,7 +95,12 @@ if __name__ == "__main__":
             multiplier = multiplier + 1
 
             if not purchased:
-                purchased, qty, ticker = scalper.buy_stock(ticker, premarket_high, multiplier, ib, purchased)
+                ticker, resistance_price, resistance_broke_one, time_resistance_one_broke = scalper.check_first_breakout(ticker, premarket_high, ib)
+                if resistance_broke_one:
+                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_broke_one, time_resistance_one_broke, resistance_price)
+                    if resistance_broke_two:
+                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib, purchased)
+
             elif purchased:
                 print('Purchased! Sleeping until 5 minutes before market close')
                 time_until_market_close = check_time()
