@@ -39,29 +39,29 @@ class GapUpScalper_Driver():
 
         highest_price = 0
 
-        for x in range(60):
+        for x in range(6):
 
             time.sleep(5)
 
-            [ticker_close] = ib.reqTickers(ticker_contract)
-            current_price = ticker_close.marketPrice()
-
-            if current_price > highest_price:
-                highest_price = current_price
+            if ticker_close.marketPrice() > highest_price:
+                highest_price = ticker_close.marketPrice()
                 print('Highest Price: ', highest_price)
 
         resistance_broke_two = False
 
-        time.sleep(300)
+        time.sleep(3)
 
         while not resistance_broke_two:
             time.sleep(5)
+
+            ticker_contract = Stock(ticker, 'SMART', 'USD')
+            [ticker_close] = ib.reqTickers(ticker_contract)
 
             print('\nChecking for second breakout...')
             print("Resistance Price", highest_price)
             print("Current Price", ticker_close.marketPrice())
 
-            if ticker_close.marketPrice() >= highest_price * 1.005:
+            if ticker_close.marketPrice() > highest_price:
                 resistance_broke_two = True
                 print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
 
@@ -84,7 +84,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() > premarket_high * 1.05:
+        if ticker_close.marketPrice() > premarket_high * .945:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
@@ -95,7 +95,7 @@ class GapUpScalper_Driver():
         else:
             return ticker, 0, resistance_broke_one
 
-    def buy_stock(self, ticker, resistance, multiplier, ib):
+    def buy_stock(self, ticker, resistance_price, multiplier, ib):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
        [ticker_close] = ib.reqTickers(ticker_contract)
@@ -104,7 +104,7 @@ class GapUpScalper_Driver():
 
        percent_of_acct_to_trade = 0.03
 
-       qty = (acc_vals // resistance) * percent_of_acct_to_trade
+       qty = (acc_vals // resistance_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
        buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
