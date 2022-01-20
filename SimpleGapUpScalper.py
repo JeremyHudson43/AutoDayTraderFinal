@@ -32,26 +32,39 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib, resistance_price):
+    def check_second_breakout(self, ticker, ib):
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        time.sleep(300)
+        highest_price = 0
+
+        for x in range(60):
+
+            time.sleep(5)
+
+            [ticker_close] = ib.reqTickers(ticker_contract)
+            current_price = ticker_close.marketPrice()
+
+            if current_price > highest_price:
+                highest_price = current_price
+                print('Highest Price: ', highest_price)
 
         resistance_broke_two = False
+
+        time.sleep(300)
 
         while not resistance_broke_two:
             time.sleep(5)
 
             print('\nChecking for second breakout...')
-            print("Resistance Price", resistance_price)
+            print("Resistance Price", highest_price)
             print("Current Price", ticker_close.marketPrice())
 
-            if ticker_close.marketPrice() >= resistance_price * 1.01:
+            if ticker_close.marketPrice() >= highest_price * 1.005:
                 resistance_broke_two = True
                 print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
-                
+
                 breakout_price = ticker_close.marketPrice()
 
                 return ticker, breakout_price, resistance_broke_two
@@ -71,7 +84,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() >= premarket_high * 1.05:
+        if ticker_close.marketPrice() > premarket_high * 1.005:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
