@@ -49,7 +49,7 @@ class GapUpScalper_Driver():
 
             if ticker_close.marketPrice() >= resistance_price:
                 resistance_broke_two = True
-                print("\nResistance Two Broke at" + str(ticker_close.marketPrice()) + "!")
+                print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
 
                 return ticker, resistance_price, resistance_broke_two
 
@@ -70,7 +70,7 @@ class GapUpScalper_Driver():
 
         if ticker_close.marketPrice() >= premarket_high * 0.905:
             resistance_broke_one = True
-            print("\nResistance One Broke at" + str(ticker_close.marketPrice()) + "!")
+            print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
             resistance = ticker_close.marketPrice()
 
