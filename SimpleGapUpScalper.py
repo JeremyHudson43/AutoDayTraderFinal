@@ -3,7 +3,6 @@ from ib_insync.contract import Stock
 from ib_insync import Order
 import sys
 from math import floor
-from datetime import datetime
 
 class GapUpScalper_Driver():
 
@@ -50,7 +49,7 @@ class GapUpScalper_Driver():
 
             if ticker_close.marketPrice() >= resistance_price:
                 resistance_broke_two = True
-                print("Resistance Two Broke!")
+                print("\nResistance Two Broke at" + str(ticker_close.marketPrice()) + "!")
 
                 return ticker, resistance_price, resistance_broke_two
 
@@ -68,10 +67,10 @@ class GapUpScalper_Driver():
         print('Checking for first breakout...')
 
         resistance_broke_one = False
-        
-        if ticker_close.marketPrice() >= premarket_high * 1.05:
+
+        if ticker_close.marketPrice() >= premarket_high * 0.905:
             resistance_broke_one = True
-            print("\nResistance One Broke!")
+            print("\nResistance One Broke at" + str(ticker_close.marketPrice()) + "!")
 
             resistance = ticker_close.marketPrice()
 
