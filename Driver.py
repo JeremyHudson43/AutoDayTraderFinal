@@ -75,11 +75,12 @@ if __name__ == "__main__":
     time_until_market_close = check_time()
     sleep_until_market_open()
 
-    final_tickers = []
-    resistance_list = []
-    resistance_broke_one_list = []
-    resistance_broke_two_list = []
-    time_resistance_one_broke_list = []
+    final_stock_picked = False
+
+    final_stock = ''
+    final_resistance_price = ''
+    final_resistance_break = False
+    final_resistance_break_time = ''
 
     while time_until_market_close > 600:
 
@@ -97,6 +98,13 @@ if __name__ == "__main__":
             if not purchased:
                 ticker, resistance_price, resistance_broke_one, time_resistance_one_broke = scalper.check_first_breakout(ticker, premarket_high, ib)
                 if resistance_broke_one:
+
+                    for ticker_item, premarket_high_item in zip(tickers, premarket_highs):
+                        if ticker_item not in ticker:
+                            tickers.remove(ticker_item)
+                        if premarket_high_item not in premarket_high:
+                            premarket_highs.remove(premarket_high_item)
+
                     ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_broke_one, time_resistance_one_broke, resistance_price)
                     if resistance_broke_two:
                         purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib, purchased)

@@ -42,7 +42,7 @@ class GapUpScalper_Driver():
         five_minute_delta = time_resistance_one_broke + timedelta(minutes=5)
 
         resistance_broke_two = False
-        print('Checking for second breakout...\n')
+        print('Checking for second breakout...')
 
         if resistance_broke_one and now > five_minute_delta:
             if ticker_close.marketPrice() >= resistance_price:
