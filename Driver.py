@@ -90,7 +90,7 @@ if __name__ == "__main__":
                 print("Ticker", ticker)
                 print("\nPremarket High", premarket_high)
 
-                ticker, resistance_price, resistance_broke_one, time_resistance_one_broke = scalper.check_first_breakout(ticker, premarket_high, ib)
+                ticker, resistance_price, resistance_broke_one = scalper.check_first_breakout(ticker, premarket_high, ib)
                 if resistance_broke_one:
                     ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_price)
                     if resistance_broke_two:

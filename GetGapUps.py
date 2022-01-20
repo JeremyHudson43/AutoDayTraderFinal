@@ -2,7 +2,6 @@ from ib_insync.contract import Stock
 from ib_insync.ib import IB, ScannerSubscription, TagValue
 import pandas as pd
 import random
-from bs4 import BeautifulSoup
 import finviz
 
 class GetGapper_Driver():
