@@ -32,27 +32,28 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib, resistance_broke_one, time_resistance_one_broke, resistance_price):
+    def check_second_breakout(self, ticker, ib, resistance_price):
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        now = datetime.now().time()
-
-        five_minute_delta = time_resistance_one_broke + timedelta(minutes=5)
+        time.sleep(3)
 
         resistance_broke_two = False
-        print('Checking for second breakout...')
 
-        if resistance_broke_one and now > five_minute_delta:
+        while not resistance_broke_two:
+            time.sleep(5)
+
+            print('\nChecking for second breakout...')
+            print("Resistance Price", resistance_price)
+            print("Current Price", ticker_close.marketPrice())
+
             if ticker_close.marketPrice() >= resistance_price:
-
                 resistance_broke_two = True
                 print("Resistance Two Broke!")
 
                 return ticker, resistance_price, resistance_broke_two
-        else:
-            return ticker, resistance_price, resistance_broke_two
+
 
     def check_first_breakout(self, ticker, premarket_high, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -68,13 +69,13 @@ class GapUpScalper_Driver():
         print('Checking for first breakout...')
 
         resistance_broke_one = False
-
-        if ticker_close.marketPrice() >= premarket_high * 1.05:
+        # if ticker_close.marketPrice() >= premarket_high * 1.05:
+        if ticker_close.marketPrice() >= premarket_high * 0.95:
 
             resistance_broke_one = True
-            print("Resistance One Broke!")
+            print("\nResistance One Broke!")
 
-            time_resistance_one_broke = datetime.now().time()  # time object
+            time_resistance_one_broke = datetime.now() # time object
             resistance = ticker_close.marketPrice()
 
             return ticker, resistance, resistance_broke_one, time_resistance_one_broke

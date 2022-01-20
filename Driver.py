@@ -75,13 +75,6 @@ if __name__ == "__main__":
     time_until_market_close = check_time()
     sleep_until_market_open()
 
-    final_stock_picked = False
-
-    final_stock = ''
-    final_resistance_price = ''
-    final_resistance_break = False
-    final_resistance_break_time = ''
-
     while time_until_market_close > 600:
 
         time_until_market_close = check_time()
@@ -89,28 +82,22 @@ if __name__ == "__main__":
 
         for ticker, premarket_high in zip(tickers, premarket_highs):
 
-            print('- - - - - - - - - ')
-            print("Ticker", ticker)
-            print("\nPremarket High", premarket_high)
-
             multiplier = multiplier + 1
 
             if not purchased:
+
+                print('- - - - - - - - - ')
+                print("Ticker", ticker)
+                print("\nPremarket High", premarket_high)
+
                 ticker, resistance_price, resistance_broke_one, time_resistance_one_broke = scalper.check_first_breakout(ticker, premarket_high, ib)
                 if resistance_broke_one:
-
-                    for ticker_item, premarket_high_item in zip(tickers, premarket_highs):
-                        if ticker_item != ticker:
-                            tickers.remove(ticker_item)
-                        if premarket_high_item != premarket_high:
-                            premarket_highs.remove(premarket_high_item)
-
-                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_broke_one, time_resistance_one_broke, resistance_price)
+                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_price)
                     if resistance_broke_two:
-                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib, purchased)
+                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib)
 
             elif purchased:
-                print('Purchased! Sleeping until 5 minutes before market close')
+                print('\nPurchased! Sleeping until 5 minutes before market close')
                 time_until_market_close = check_time()
                 time.sleep(time_until_market_close - 300)
                 scalper.sell_stock(ib, qty, ticker)
