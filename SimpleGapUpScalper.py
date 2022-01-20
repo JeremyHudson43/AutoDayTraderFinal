@@ -4,6 +4,7 @@ from ib_insync import Order
 import sys
 from math import floor
 
+
 class GapUpScalper_Driver():
 
     def get_percent(self, first, second):
@@ -47,7 +48,7 @@ class GapUpScalper_Driver():
             print("Resistance Price", resistance_price)
             print("Current Price", ticker_close.marketPrice())
 
-            if ticker_close.marketPrice() >= resistance_price:
+            if ticker_close.marketPrice() >= resistance_price * 1.01:
                 resistance_broke_two = True
                 print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
 
@@ -68,7 +69,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() >= premarket_high * 0.905:
+        if ticker_close.marketPrice() >= premarket_high * 1.05:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
