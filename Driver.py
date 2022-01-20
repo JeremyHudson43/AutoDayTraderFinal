@@ -21,9 +21,9 @@ def sleep_until_market_open():
     StartTime = pd.to_datetime("9:30").tz_localize('America/New_York')
     TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
 
-    time_until_market_open = (StartTime - TimeNow).total_seconds()
-
-    time.sleep(time_until_market_open)
+    if StartTime > TimeNow:
+        time_until_market_open = (StartTime - TimeNow).total_seconds()
+        time.sleep(time_until_market_open)
 
 
 def check_time():
