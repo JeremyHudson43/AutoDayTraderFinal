@@ -51,8 +51,10 @@ class GapUpScalper_Driver():
             if ticker_close.marketPrice() >= resistance_price * 1.01:
                 resistance_broke_two = True
                 print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
+                
+                breakout_price = ticker_close.marketPrice()
 
-                return ticker, resistance_price, resistance_broke_two
+                return ticker, breakout_price, resistance_broke_two
 
     def check_first_breakout(self, ticker, premarket_high, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
