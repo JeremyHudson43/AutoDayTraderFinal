@@ -87,7 +87,7 @@ class GetGapper_Driver():
                 premarket_data = pd.DataFrame(
                     ib.reqHistoricalData(
                         security,
-                        endDateTime='09:29:59',
+                        endDateTime='09:28:00',
                         durationStr='1 D',
                         barSizeSetting='1 min',
                         whatToShow="TRADES",
