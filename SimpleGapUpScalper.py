@@ -42,6 +42,7 @@ class GapUpScalper_Driver():
         five_minute_delta = time_resistance_one_broke + timedelta(minutes=5)
 
         resistance_broke_two = False
+        print('Checking for second breakout...\n')
 
         if resistance_broke_one and now > five_minute_delta:
             if ticker_close.marketPrice() >= resistance_price:
@@ -53,7 +54,7 @@ class GapUpScalper_Driver():
         else:
             return ticker, resistance_price, resistance_broke_two
 
-    def check_first_breakout(self, ticker, premarket_high, ib, resistance_broke_one, resistance_broke_two, resistance):
+    def check_first_breakout(self, ticker, premarket_high, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
 
         [ticker_close] = ib.reqTickers(ticker_contract)
@@ -64,8 +65,11 @@ class GapUpScalper_Driver():
 
         print("Current Price:", ticker_close.marketPrice())
         print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
+        print('Checking for first breakout...')
 
-        if ticker_close.marketPrice() >= premarket_high * 1.05 and not resistance_broke_one:
+        resistance_broke_one = False
+
+        if ticker_close.marketPrice() >= premarket_high * 1.05:
 
             resistance_broke_one = True
             print("Resistance One Broke!")
@@ -76,7 +80,7 @@ class GapUpScalper_Driver():
             return ticker, resistance, resistance_broke_one, time_resistance_one_broke
 
         else:
-            return ticker, resistance, resistance_broke_one, 0
+            return ticker, 0, resistance_broke_one, 0
 
     def buy_stock(self, ticker, resistance, multiplier, ib):
 
