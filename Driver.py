@@ -100,9 +100,9 @@ if __name__ == "__main__":
                 if resistance_broke_one:
 
                     for ticker_item, premarket_high_item in zip(tickers, premarket_highs):
-                        if ticker_item not in ticker:
+                        if ticker_item != ticker:
                             tickers.remove(ticker_item)
-                        if premarket_high_item not in premarket_high:
+                        if premarket_high_item != premarket_high:
                             premarket_highs.remove(premarket_high_item)
 
                     ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance_broke_one, time_resistance_one_broke, resistance_price)
