@@ -55,13 +55,13 @@ class GapUpScalper_Driver():
 
            pct_difference = round(self.get_percent((qty * limit_price), acc_vals), 2)
 
-           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-                 ' for a total of $' + str(round(qty * ticker_close.marketPrice())) + ' USD' +
-                 ' which is ' + str(pct_difference) + '% of your account ')
-
            buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
            ib.placeOrder(ticker_contract, buy_order)
+           
+           print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
+                 ' for a total of $' + str(round(qty * ticker_close.marketPrice())) + ' USD' +
+                 ' which is ' + str(pct_difference) + '% of your account ')
 
            sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
                          trailingPercent=2.0, totalQuantity=qty)
