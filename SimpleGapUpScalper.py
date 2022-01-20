@@ -44,7 +44,7 @@ class GapUpScalper_Driver():
        print("Current Price:", ticker_close.marketPrice())
        print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
 
-       if abs(limit_market_difference) < 0.5 and ticker_close.marketPrice() > limit_price:
+       if limit_price < ticker_close.marketPrice() < limit_price * 1.01:
 
            acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
@@ -61,10 +61,7 @@ class GapUpScalper_Driver():
 
            buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
 
-           place_buy = ib.placeOrder(ticker_contract, buy_order)
-
-           while not place_buy.isDone():
-               time.sleep(1)
+           ib.placeOrder(ticker_contract, buy_order)
 
            sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
                          trailingPercent=2.0, totalQuantity=qty)
