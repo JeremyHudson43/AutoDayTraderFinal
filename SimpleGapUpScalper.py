@@ -77,7 +77,7 @@ class GapUpScalper_Driver():
             return ticker, resistance, resistance_broke_one
 
         else:
-            return ticker, 0, resistance_broke_one, 0
+            return ticker, 0, resistance_broke_one
 
     def buy_stock(self, ticker, resistance, multiplier, ib):
 
