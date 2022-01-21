@@ -49,7 +49,7 @@ class GapUpScalper_Driver():
                 highest_price = ticker_close.marketPrice()
                 print('Highest Price: ', highest_price)
             if premarket_high * 0.98 < ticker_close.marketPrice() < premarket_high * 1.02:
-                print('Pullback found at ', ticker_close.marketPrice())
+                print('Pullback found at: ', ticker_close.marketPrice())
                 pullback = True
 
             if pullback:
@@ -69,14 +69,14 @@ class GapUpScalper_Driver():
 
                         return ticker, breakout_price, resistance_broke_two
 
-    def check_first_breakout(self, ticker, premarket_high, ib):
+    def check_first_breakout(self, ticker, breakout_area, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
 
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        premarket_high = float(str(round(premarket_high, 2)))
+        breakout_area = round(breakout_area * 1.05, 2)
 
-        limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), premarket_high)
+        limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), breakout_area)
 
         print("Current Price:", ticker_close.marketPrice())
         print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
@@ -84,7 +84,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() > premarket_high * 1.05:
+        if ticker_close.marketPrice() > breakout_area:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
@@ -95,16 +95,16 @@ class GapUpScalper_Driver():
         else:
             return ticker, 0, resistance_broke_one
 
-    def buy_stock(self, ticker, resistance_price, multiplier, ib):
+    def buy_stock(self, ticker, breakout_price, multiplier, ib):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
        [ticker_close] = ib.reqTickers(ticker_contract)
 
        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-       percent_of_acct_to_trade = 0.03
+       percent_of_acct_to_trade = 0.1
 
-       qty = (acc_vals // resistance_price) * percent_of_acct_to_trade
+       qty = (acc_vals // breakout_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
        buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
