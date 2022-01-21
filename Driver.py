@@ -16,7 +16,7 @@ ib = IB()
 ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
 def sleep_until_market_open():
-    now = datetime.now().time()  # time object
+    now = datetime.now()  # time object
 
     StartTime = pd.to_datetime("9:30").tz_localize('America/New_York')
     TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
@@ -30,7 +30,7 @@ def check_time():
     ## STARTING THE ALGORITHM ##
     # Time frame: 6.30 hrs
 
-    now = datetime.now().time()  # time object
+    now = datetime.now() # time object
 
     StartTime = pd.to_datetime("9:28").tz_localize('America/New_York')
     TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
