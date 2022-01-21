@@ -32,7 +32,7 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib, premarket_high):
+    def check_second_breakout(self, ticker, ib):
 
         highest_price = 0
         pullback = False
@@ -48,7 +48,7 @@ class GapUpScalper_Driver():
             if ticker_close.marketPrice() > highest_price:
                 highest_price = ticker_close.marketPrice()
                 print('Highest Price: ', highest_price)
-            if premarket_high * 0.98 < ticker_close.marketPrice() < premarket_high * 1.02:
+            if highest_price * 0.98 >= ticker_close.marketPrice() and highest_price > 0:
                 print('Pullback found at: ', ticker_close.marketPrice())
                 pullback = True
 
