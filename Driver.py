@@ -92,7 +92,7 @@ if __name__ == "__main__":
 
                 ticker, resistance_price, resistance_broke_one = scalper.check_first_breakout(ticker, premarket_high, ib)
                 if resistance_broke_one:
-                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib)
+                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, premarket_high)
                     if resistance_broke_two:
                         purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib)
 
