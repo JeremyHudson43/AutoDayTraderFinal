@@ -36,7 +36,7 @@ class GapUpScalper_Driver():
 
         highest_price = 0
 
-        for x in range(6):
+        for x in range(60):
 
             ticker_contract = Stock(ticker, 'SMART', 'USD')
             [ticker_close] = ib.reqTickers(ticker_contract)
@@ -49,7 +49,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_two = False
 
-        time.sleep(3)
+        time.sleep(300)
 
         while not resistance_broke_two:
             time.sleep(5)
@@ -84,7 +84,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() > premarket_high * .945:
+        if ticker_close.marketPrice() > premarket_high * 1.05:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
