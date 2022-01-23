@@ -49,7 +49,7 @@ class GapUpScalper_Driver():
                 whatToShow="TRADES",
                 formatDate=1
             ))
-        
+
         highest_price = market_data['high'].max()
 
         while not resistance_broke_two:
@@ -109,9 +109,9 @@ class GapUpScalper_Driver():
        qty = (acc_vals // breakout_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       limit_price = round(breakout_price * 1.005, 2)
+       limit_price = round(breakout_price, 2)
        take_profit = round(breakout_price * 1.15, 2)
-       stop_loss_price = round(breakout_price * 0.985, 2)
+       stop_loss_price = round(breakout_price * 0.98, 2)
 
        buy_order = ib.bracketOrder(
            'BUY',
