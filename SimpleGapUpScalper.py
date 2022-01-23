@@ -26,7 +26,7 @@ class GapUpScalper_Driver():
 
            ib.placeOrder(ticker_contract, order)
 
-           print('\nSold ' + str(ticker) +  "!")
+           print('\nSold ' + str(ticker) +  " at the end of the day!")
 
            time.sleep(10)
 
@@ -51,7 +51,7 @@ class GapUpScalper_Driver():
             ))
 
         highest_price = market_data['high'].max()
-        
+
         second_breakout_price = highest_price * 1.005
 
         while not resistance_broke_two:
