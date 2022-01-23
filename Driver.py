@@ -61,7 +61,7 @@ def generate_gapper_CSV():
 
 if __name__ == "__main__":
 
-    check_time()
+    # check_time()
 
     record_df = pd.DataFrame()
     df = generate_gapper_CSV()
@@ -73,6 +73,8 @@ if __name__ == "__main__":
 
     time_until_market_close = check_time()
     sleep_until_market_open()
+
+    # trailing stop plus hard stop
 
     while time_until_market_close > 600:
 
@@ -93,7 +95,7 @@ if __name__ == "__main__":
                 if resistance_broke_one:
                     ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib)
                     if resistance_broke_two:
-                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, multiplier, ib)
+                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)
 
             elif purchased:
                 print('\nPurchased! Sleeping until 5 minutes before market close')

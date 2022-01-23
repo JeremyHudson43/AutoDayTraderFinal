@@ -35,46 +35,44 @@ class GapUpScalper_Driver():
     def check_second_breakout(self, ticker, ib):
 
         highest_price = 0
-        pullback = False
         resistance_broke_two = False
 
-        while not resistance_broke_two:
+        for x in range(30):
 
             ticker_contract = Stock(ticker, 'SMART', 'USD')
             [ticker_close] = ib.reqTickers(ticker_contract)
 
-            time.sleep(5)
+            time.sleep(2)
 
             if ticker_close.marketPrice() > highest_price:
                 highest_price = ticker_close.marketPrice()
                 print('Highest Price: ', highest_price)
-            if highest_price * 0.98 >= ticker_close.marketPrice() and highest_price > 0:
-                print('Pullback found at: ', ticker_close.marketPrice())
-                pullback = True
 
-            if pullback:
-                while not resistance_broke_two:
-                    ticker_contract = Stock(ticker, 'SMART', 'USD')
-                    [ticker_close] = ib.reqTickers(ticker_contract)
+        while not resistance_broke_two:
 
-                    print('\nChecking for second breakout...')
-                    print("Resistance Price", highest_price)
-                    print("Current Price", ticker_close.marketPrice())
+            time.sleep(1)
 
-                    if ticker_close.marketPrice() > highest_price:
-                        resistance_broke_two = True
-                        print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
+            ticker_contract = Stock(ticker, 'SMART', 'USD')
+            [ticker_close] = ib.reqTickers(ticker_contract)
 
-                        breakout_price = ticker_close.marketPrice()
+            print('\nChecking for second breakout...')
+            print("Resistance Price", highest_price)
+            print("Current Price", ticker_close.marketPrice())
 
-                        return ticker, breakout_price, resistance_broke_two
+            if ticker_close.marketPrice() >= highest_price * 1.005:
+                resistance_broke_two = True
+                print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
+
+                breakout_price = ticker_close.marketPrice()
+
+                return ticker, breakout_price, resistance_broke_two
 
     def check_first_breakout(self, ticker, breakout_area, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
 
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        breakout_area = round(breakout_area * 1.05, 2)
+        breakout_area = round(breakout_area * 1.02, 2)
 
         limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), breakout_area)
 
@@ -95,7 +93,7 @@ class GapUpScalper_Driver():
         else:
             return ticker, 0, resistance_broke_one
 
-    def buy_stock(self, ticker, breakout_price, multiplier, ib):
+    def buy_stock(self, ticker, breakout_price, ib):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
        [ticker_close] = ib.reqTickers(ticker_contract)
@@ -107,20 +105,26 @@ class GapUpScalper_Driver():
        qty = (acc_vals // breakout_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       buy_order = Order(orderId=5 * multiplier, action='BUY', orderType='MKT', totalQuantity=qty)
+       limit_price = round(breakout_price * 1.005, 2)
+       take_profit = round(breakout_price * 1.15, 2)
+       stop_loss_price = round(breakout_price * 0.985, 2)
 
-       ib.placeOrder(ticker_contract, buy_order)
+       buy_order = ib.bracketOrder(
+           'BUY',
+           qty,
+           limitPrice=limit_price,
+           takeProfitPrice=take_profit,
+           stopLossPrice=stop_loss_price
+       )
+
+       for o in buy_order:
+           ib.placeOrder(ticker_contract, o)
 
        pct_difference = round(self.get_percent((qty * ticker_close.marketPrice()), acc_vals), 2)
 
        print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
              ' for a total of $' + str(round(qty * ticker_close.marketPrice())) + ' USD' +
              ' which is ' + str(pct_difference) + '% of your account ')
-
-       sell_order = Order(orderId=10 * multiplier, action='Sell', orderType='TRAIL',
-                          trailingPercent=2.0, totalQuantity=qty)
-
-       ib.placeOrder(ticker_contract, sell_order)
 
        purchased = True
 
