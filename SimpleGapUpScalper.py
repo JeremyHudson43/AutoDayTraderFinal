@@ -3,7 +3,7 @@ from ib_insync.contract import Stock
 from ib_insync import Order
 import sys
 from math import floor
-
+import pandas as pd
 
 class GapUpScalper_Driver():
 
@@ -34,19 +34,23 @@ class GapUpScalper_Driver():
 
     def check_second_breakout(self, ticker, ib):
 
-        highest_price = 0
         resistance_broke_two = False
 
-        for x in range(30):
+        time.sleep(60)
 
-            ticker_contract = Stock(ticker, 'SMART', 'USD')
-            [ticker_close] = ib.reqTickers(ticker_contract)
+        ticker_contract = Stock(ticker, 'SMART', 'USD')
 
-            time.sleep(2)
-
-            if ticker_close.marketPrice() > highest_price:
-                highest_price = ticker_close.marketPrice()
-                print('Highest Price: ', highest_price)
+        market_data = pd.DataFrame(
+            ib.reqHistoricalData(
+                ticker_contract,
+                endDateTime='',
+                durationStr='180 S',
+                barSizeSetting='1 min',
+                whatToShow="TRADES",
+                formatDate=1
+            ))
+        
+        highest_price = market_data['high'].max()
 
         while not resistance_broke_two:
 
