@@ -60,7 +60,6 @@ class GapUpScalper_Driver():
             [ticker_close] = ib.reqTickers(ticker_contract)
 
             print('\nChecking for second breakout at ' + str(highest_price * 1.005) + "...")
-            print("Resistance Price", highest_price)
             print("Current Price", ticker_close.marketPrice())
 
             if ticker_close.marketPrice() >= highest_price * 1.005:
