@@ -59,7 +59,7 @@ class GapUpScalper_Driver():
             ticker_contract = Stock(ticker, 'SMART', 'USD')
             [ticker_close] = ib.reqTickers(ticker_contract)
 
-            print('\nChecking for second breakout...')
+            print('\nChecking for second breakout at ' + str(highest_price * 1.005) + "...")
             print("Resistance Price", highest_price)
             print("Current Price", ticker_close.marketPrice())
 
@@ -86,7 +86,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() > breakout_area:
+        if ticker_close.marketPrice() >= breakout_area:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
@@ -110,7 +110,7 @@ class GapUpScalper_Driver():
        qty = floor(qty)
 
        limit_price = round(breakout_price, 2)
-       take_profit = round(breakout_price * 1.15, 2)
+       take_profit = round(breakout_price * 1.10, 2)
        stop_loss_price = round(breakout_price * 0.98, 2)
 
        buy_order = ib.bracketOrder(
