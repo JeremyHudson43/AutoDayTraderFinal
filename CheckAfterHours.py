@@ -139,6 +139,8 @@ def get_AH_gappers():
                         file_to_modify.write('Afterhours Volume is: ' + str(ratio) + '% of Shares Float\n')
                         file_to_modify.write('Afterhours High is: ' + str(premarket_data['high'].max()) + '\n')
                         file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                        
+                        file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
@@ -245,6 +247,8 @@ def get_PM_gappers():
                         file_to_modify.write('Premarket Volume is: ' + str(ratio) + '% of Shares Float\n')
                         file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
                         file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                        
+                        file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
@@ -254,5 +258,5 @@ def get_PM_gappers():
     return df
 
 get_AH_gappers()
-time.sleep(3600)
+time.sleep(28800)
 get_PM_gappers()
