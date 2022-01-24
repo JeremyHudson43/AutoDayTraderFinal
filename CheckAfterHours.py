@@ -37,7 +37,6 @@ def get_percent(first, second):
     return percent
 
 def get_AH_gappers():
-    
 
     ib = IB()
 
