@@ -64,10 +64,6 @@ def get_AH_gappers():
     current_time = dt.datetime.now().replace(microsecond=0).time()
     current_time = dt.datetime.combine(date, current_time)
 
-    market_open = "9:30:00"
-    market_open = dt.datetime.strptime(market_open, '%H:%M:%S').time()
-    market_open = dt.datetime.combine(date, market_open)
-
     market_close = "16:00:00"
     market_close = dt.datetime.strptime(market_close, '%H:%M:%S').time()
     market_close = dt.datetime.combine(date, market_close)
@@ -88,59 +84,57 @@ def get_AH_gappers():
 
             try:
 
-                if current_time > market_close or current_time < market_open:
+                security = Stock(stock, 'SMART', 'USD')
+                [ticker_close] = ib.reqTickers(security)
+                price = ticker_close.marketPrice()
 
-                    security = Stock(stock, 'SMART', 'USD')
-                    [ticker_close] = ib.reqTickers(security)
-                    price = ticker_close.marketPrice()
+                finviz_stock = finviz.get_stock(stock)
 
-                    finviz_stock = finviz.get_stock(stock)
+                stock_float = value_to_float(finviz_stock['Shs Float'])
+                stock_sector = finviz_stock['Sector']
 
-                    stock_float = value_to_float(finviz_stock['Shs Float'])
-                    stock_sector = finviz_stock['Sector']
+                diff = market_close - current_time
+                seconds = round(diff.seconds)
 
-                    diff = market_close - current_time
-                    seconds = round(diff.seconds)
+                # Fetching historical data when market is closed for testing purposes
+                premarket_data = pd.DataFrame(
+                    ib.reqHistoricalData(
+                        security,
+                        endDateTime='',
+                        durationStr= str(seconds) + ' S',
+                        barSizeSetting='1 min',
+                        whatToShow="TRADES",
+                        useRTH=False,
+                        formatDate=1
+                    ))
 
-                    # Fetching historical data when market is closed for testing purposes
-                    premarket_data = pd.DataFrame(
-                        ib.reqHistoricalData(
-                            security,
-                            endDateTime='',
-                            durationStr= str(seconds) + ' S',
-                            barSizeSetting='1 min',
-                            whatToShow="TRADES",
-                            useRTH=False,
-                            formatDate=1
-                        ))
+                volume = sum(premarket_data['volume'].tolist()) * 100
+                ratio = get_percent(volume, stock_float)
 
-                    volume = sum(premarket_data['volume'].tolist()) * 100
-                    ratio = get_percent(volume, stock_float)
+                if ratio > 0 and stock_float < 30000000:
 
-                    if ratio > 0 and stock_float < 30000000:
+                    file_to_modify = open("afterhours.txt", "a")
 
-                        file_to_modify = open("afterhours.txt", "a")
+                    print('Ticker', security.symbol)
+                    print('Price', price)
+                    print("Shares Float", stock_float)
+                    print("Volume", volume)
+                    print("Stock Sector", stock_sector)
+                    print('Afterhours Volume is', ratio, '% of Shares Float')
+                    print('Afterhours High is', premarket_data['high'].max())
+                    print('Time of access is', current_time)
+                    print('')
 
-                        print('Ticker', security.symbol)
-                        print('Price', price)
-                        print("Shares Float", stock_float)
-                        print("Volume", volume)
-                        print("Stock Sector", stock_sector)
-                        print('Afterhours Volume is', ratio, '% of Shares Float')
-                        print('Afterhours High is', premarket_data['high'].max())
-                        print('Time of access is', current_time)
-                        print('')
+                    file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                    file_to_modify.write('Price: ' + str(price) + '\n')
+                    file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                    file_to_modify.write('Volume: ' + str(volume) + '\n')
+                    file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                    file_to_modify.write('Afterhours Volume is: ' + str(ratio) + '% of Shares Float\n')
+                    file_to_modify.write('Afterhours High is: ' + str(premarket_data['high'].max()) + '\n')
+                    file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
 
-                        file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                        file_to_modify.write('Price: ' + str(price) + '\n')
-                        file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                        file_to_modify.write('Volume: ' + str(volume) + '\n')
-                        file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                        file_to_modify.write('Afterhours Volume is: ' + str(ratio) + '% of Shares Float\n')
-                        file_to_modify.write('Afterhours High is: ' + str(premarket_data['high'].max()) + '\n')
-                        file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                        
-                        file_to_modify.close()
+                    file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
@@ -180,9 +174,6 @@ def get_PM_gappers():
     market_open = dt.datetime.strptime(market_open, '%H:%M:%S').time()
     market_open = dt.datetime.combine(date, market_open)
 
-    market_close = "16:00:00"
-    market_close = dt.datetime.strptime(market_close, '%H:%M:%S').time()
-    market_close = dt.datetime.combine(date, market_close)
 
     while current_time < market_open:
 
@@ -196,59 +187,57 @@ def get_PM_gappers():
 
             try:
 
-                if current_time > market_close or current_time < market_open:
+                security = Stock(stock, 'SMART', 'USD')
+                [ticker_close] = ib.reqTickers(security)
+                price = ticker_close.marketPrice()
 
-                    security = Stock(stock, 'SMART', 'USD')
-                    [ticker_close] = ib.reqTickers(security)
-                    price = ticker_close.marketPrice()
+                finviz_stock = finviz.get_stock(stock)
 
-                    finviz_stock = finviz.get_stock(stock)
+                stock_float = value_to_float(finviz_stock['Shs Float'])
+                stock_sector = finviz_stock['Sector']
 
-                    stock_float = value_to_float(finviz_stock['Shs Float'])
-                    stock_sector = finviz_stock['Sector']
+                diff = market_open - current_time
+                seconds = round(diff.seconds)
 
-                    diff = market_open - current_time
-                    seconds = round(diff.seconds)
+                # Fetching historical data when market is closed for testing purposes
+                premarket_data = pd.DataFrame(
+                    ib.reqHistoricalData(
+                        security,
+                        endDateTime='',
+                        durationStr=str(seconds) + ' S',
+                        barSizeSetting='1 min',
+                        whatToShow="TRADES",
+                        useRTH=False,
+                        formatDate=1
+                    ))
 
-                    # Fetching historical data when market is closed for testing purposes
-                    premarket_data = pd.DataFrame(
-                        ib.reqHistoricalData(
-                            security,
-                            endDateTime='',
-                            durationStr=str(seconds) + ' S',
-                            barSizeSetting='1 min',
-                            whatToShow="TRADES",
-                            useRTH=False,
-                            formatDate=1
-                        ))
+                volume = sum(premarket_data['volume'].tolist()) * 100
+                ratio = get_percent(volume, stock_float)
 
-                    volume = sum(premarket_data['volume'].tolist()) * 100
-                    ratio = get_percent(volume, stock_float)
+                if ratio > 0 and stock_float < 30000000:
 
-                    if ratio > 0 and stock_float < 30000000:
+                    file_to_modify = open("afterhours.txt", "a")
 
-                        file_to_modify = open("afterhours.txt", "a")
+                    print('Ticker', security.symbol)
+                    print('Price', price)
+                    print("Shares Float", stock_float)
+                    print("Volume", volume)
+                    print("Stock Sector", stock_sector)
+                    print('Premarket Volume is', ratio, '% of Shares Float')
+                    print('Premarket High is', premarket_data['high'].max())
+                    print('Time of access is', current_time)
+                    print('')
 
-                        print('Ticker', security.symbol)
-                        print('Price', price)
-                        print("Shares Float", stock_float)
-                        print("Volume", volume)
-                        print("Stock Sector", stock_sector)
-                        print('Premarket Volume is', ratio, '% of Shares Float')
-                        print('Premarket High is', premarket_data['high'].max())
-                        print('Time of access is', current_time)
-                        print('')
+                    file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                    file_to_modify.write('Price: ' + str(price) + '\n')
+                    file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                    file_to_modify.write('Volume: ' + str(volume) + '\n')
+                    file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                    file_to_modify.write('Premarket Volume is: ' + str(ratio) + '% of Shares Float\n')
+                    file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
+                    file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
 
-                        file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                        file_to_modify.write('Price: ' + str(price) + '\n')
-                        file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                        file_to_modify.write('Volume: ' + str(volume) + '\n')
-                        file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                        file_to_modify.write('Premarket Volume is: ' + str(ratio) + '% of Shares Float\n')
-                        file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
-                        file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                        
-                        file_to_modify.close()
+                    file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
@@ -256,6 +245,7 @@ def get_PM_gappers():
     ib.disconnect()
 
     return df
+
 
 get_AH_gappers()
 time.sleep(28800)
