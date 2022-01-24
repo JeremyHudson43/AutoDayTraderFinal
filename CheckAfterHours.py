@@ -139,6 +139,9 @@ def get_AH_gappers():
             except Exception as err:
                 print(traceback.format_exc())
 
+    ib.disconnect()
+
+
 
 def get_PM_gappers():
 
@@ -259,8 +262,6 @@ PM_open= dt.datetime.strptime(PM_open, '%H:%M:%S').time()
 PM_open = dt.datetime.combine(date, PM_open)
 
 diff = abs((PM_open - current_time).total_seconds())
-
-print(diff)
 
 time.sleep(diff)
 
