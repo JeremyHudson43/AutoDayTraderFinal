@@ -89,6 +89,7 @@ def get_AH_gappers():
                 price = ticker_close.marketPrice()
 
                 finviz_stock = finviz.get_stock(stock)
+                finviz_price = finviz_stock['Price']
 
                 stock_float = value_to_float(finviz_stock['Shs Float'])
                 stock_sector = finviz_stock['Sector']
@@ -114,25 +115,30 @@ def get_AH_gappers():
                 if ratio > 0 and stock_float < 30000000:
 
                     file_to_modify = open("afterhours.txt", "a")
+                    change_perc = round(100 - get_percent(float(finviz_price, price)), 2)
 
                     print('Ticker', security.symbol)
-                    print('Price', price)
+                    print('Current Price', price)
+                    print('Close Price', finviz_price)
                     print("Shares Float", stock_float)
                     print("Volume", volume)
                     print("Stock Sector", stock_sector)
                     print('Afterhours Volume is', ratio, '% of Shares Float')
                     print('Afterhours High is', afterhours_data['high'].max())
                     print('Time of access is', current_time)
+                    print('Change Perc', + str(change_perc) + "%")
                     print('')
 
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                    file_to_modify.write('Price: ' + str(price) + '\n')
+                    file_to_modify.write('Current Price: ' + str(price) + '\n')
+                    file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
                     file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
                     file_to_modify.write('Volume: ' + str(volume) + '\n')
                     file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
                     file_to_modify.write('Afterhours Volume is: ' + str(ratio) + '% of Shares Float\n')
                     file_to_modify.write('Afterhours High is: ' + str(afterhours_data['high'].max()) + '\n')
                     file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                    file_to_modify.write('Change Perc' + str(change_perc) + "%")
                     file_to_modify.write('\n')
 
                     file_to_modify.close()
@@ -141,7 +147,6 @@ def get_AH_gappers():
                 print(traceback.format_exc())
 
     ib.disconnect()
-
 
 
 def get_PM_gappers():
@@ -159,7 +164,7 @@ def get_PM_gappers():
     market_open = dt.datetime.combine(date, market_open)
 
     while current_time < market_open:
-        
+
         current_time = dt.datetime.now().replace(microsecond=0).time()
         current_time = dt.datetime.combine(date, current_time)
 
@@ -192,6 +197,7 @@ def get_PM_gappers():
                 price = ticker_close.marketPrice()
 
                 finviz_stock = finviz.get_stock(stock)
+                finviz_price = finviz_stock['Price']
 
                 stock_float = value_to_float(finviz_stock['Shs Float'])
                 stock_sector = finviz_stock['Sector']
@@ -217,24 +223,29 @@ def get_PM_gappers():
                 if ratio > 0 and stock_float < 30000000:
 
                     file_to_modify = open("premarket.txt", "a")
+                    change_perc = round(100 - get_percent(float(finviz_price, price)), 2)
 
                     print('Ticker', security.symbol)
-                    print('Price', price)
+                    print('Current Price', price)
+                    print('Close Price', finviz_price)
                     print("Shares Float", stock_float)
                     print("Volume", volume)
                     print("Stock Sector", stock_sector)
                     print('Premarket Volume is', ratio, '% of Shares Float')
                     print('Premarket High is', premarket_data['high'].max())
                     print('Time of access is', current_time)
+                    print('Change Perc', str(change_perc) + "%")
 
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                    file_to_modify.write('Price: ' + str(price) + '\n')
+                    file_to_modify.write('Current Price: ' + str(price) + '\n')
+                    file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
                     file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
                     file_to_modify.write('Volume: ' + str(volume) + '\n')
                     file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
                     file_to_modify.write('Premarket Volume is: ' + str(ratio) + '% of Shares Float\n')
                     file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
                     file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                    file_to_modify.write('Change Perc' + str(change_perc) + "%")
                     file_to_modify.write('\n')
 
                     file_to_modify.close()
