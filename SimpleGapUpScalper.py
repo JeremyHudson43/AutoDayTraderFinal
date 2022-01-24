@@ -52,7 +52,8 @@ class GapUpScalper_Driver():
                 durationStr='180 S',
                 barSizeSetting='1 min',
                 whatToShow="TRADES",
-                formatDate=1
+                formatDate=1,
+                useRTH=True
             ))
 
         highest_price = market_data['high'].max()
