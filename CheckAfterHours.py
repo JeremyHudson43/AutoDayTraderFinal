@@ -131,6 +131,7 @@ def get_AH_gappers():
                     print('Change Perc ' + str(change_perc) + "%")
                     print('')
 
+                    file_to_modify.write('\n') 
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
                     file_to_modify.write('Current Price: ' + str(price) + '\n')
                     file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
@@ -240,6 +241,7 @@ def get_PM_gappers():
                     print('Time of access is', current_time)
                     print('Change Perc ', str(change_perc) + "%")
 
+                    file_to_modify.write('\n')
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
                     file_to_modify.write('Current Price: ' + str(price) + '\n')
                     file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
