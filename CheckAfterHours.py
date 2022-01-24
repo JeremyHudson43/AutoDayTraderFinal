@@ -115,8 +115,8 @@ def get_AH_gappers():
                 if ratio > 0 and stock_float < 30000000:
 
                     file_to_modify = open("afterhours.txt", "a")
-                    
-                    change = 100 - get_percent(float(finviz_price, price))
+
+                    change = 100 - get_percent(float(finviz_price), price)
                     change_perc = round(change, 2)
 
                     print('Ticker', security.symbol)
@@ -225,8 +225,8 @@ def get_PM_gappers():
                 if ratio > 0 and stock_float < 30000000:
 
                     file_to_modify = open("premarket.txt", "a")
-                    
-                    change = 100 - get_percent(float(finviz_price, price))
+
+                    change = 100 - get_percent(float(finviz_price), price)
                     change_perc = round(change, 2)
 
                     print('Ticker', security.symbol)
