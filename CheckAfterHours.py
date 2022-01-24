@@ -81,9 +81,9 @@ def get_AH_gappers():
         # time.sleep(60)
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:20]:
+        for stock in symbols:
 
-            time.sleep(15)
+            time.sleep(5)
 
             try:
 
@@ -94,7 +94,7 @@ def get_AH_gappers():
                 news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
                 news_datetime = dt.datetime.combine(news_date_year , news_datetime)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 360000:
+                if 300 < (current_time - news_datetime).total_seconds() < 3600:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -124,7 +124,7 @@ def get_AH_gappers():
                     volume = sum(afterhours_data['volume'].tolist()) * 100
                     ratio = get_percent(volume, stock_float)
 
-                    if ratio > 0 and stock_float < 30000000:
+                    if ratio > 0 and stock_float < 300000000000000:
 
                         file_to_modify = open("afterhours.txt", "a")
 
@@ -156,7 +156,7 @@ def get_AH_gappers():
                             file_to_modify.write('Afterhours Volume is: ' + str(round(ratio, 2)) + '% of Shares Float\n')
                             file_to_modify.write('Afterhours High is: ' + str(afterhours_data['high'].max()) + '\n')
                             file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                            file_to_modify.write('Change Perc ' + str(change_perc) + "%")
+                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
                             file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
                             file_to_modify.write('\n')
 
@@ -205,9 +205,9 @@ def get_PM_gappers():
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:20]:
+        for stock in symbols:
 
-            time.sleep(15)
+            time.sleep(5)
 
             try:
 
@@ -218,7 +218,7 @@ def get_PM_gappers():
                 news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
                 news_datetime = dt.datetime.combine(news_date_year, news_datetime)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 360000:
+                if 300 < (current_time - news_datetime).total_seconds() < 3600:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -248,7 +248,7 @@ def get_PM_gappers():
                     volume = sum(premarket_data['volume'].tolist()) * 100
                     ratio = get_percent(volume, stock_float)
 
-                    if ratio > 0 and stock_float < 30000000:
+                    if ratio > 0 and stock_float < 30000000000000:
 
                         file_to_modify = open("premarket.txt", "a")
 
@@ -280,7 +280,7 @@ def get_PM_gappers():
                             file_to_modify.write('Premarket Volume is: ' + str(round(ratio, 2)) + '% of Shares Float\n')
                             file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
                             file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                            file_to_modify.write('Change Perc ' + str(change_perc) + "%")
+                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
                             file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
                             file_to_modify.write('\n')
 
@@ -294,6 +294,7 @@ def get_PM_gappers():
 
 get_AH_gappers()
 
+
 date = dt.datetime.now().replace(microsecond=0).date()
 
 current_time = dt.datetime.now().replace(microsecond=0).time()
@@ -305,6 +306,8 @@ PM_open= dt.datetime.strptime(PM_open, '%H:%M:%S').time()
 PM_open = dt.datetime.combine(date, PM_open)
 
 diff = abs((PM_open - current_time).total_seconds())
+
+print("AH Gappers Scanned! Sleeping for " + str(diff) + " seconds")
 
 time.sleep(diff)
 
