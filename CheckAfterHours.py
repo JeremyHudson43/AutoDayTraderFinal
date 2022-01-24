@@ -6,6 +6,7 @@ import finviz
 import datetime as dt
 import traceback
 import time
+import finviz
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -77,12 +78,23 @@ def get_AH_gappers():
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
-        time.sleep(60)
+        # time.sleep(60)
 
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols[:20]:
 
             try:
+
+                news = finviz.get_news(stock)[0]
+                news_date = news[0]
+
+                news_date_year = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').date()
+                news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
+                news_datetime= dt.datetime.combine(news_date_year , news_datetime)
+
+                if 300 < (current_time - news_datetime).total_seconds() < 360000:
+
+                    print(current_time, news_datetime, stock)
 
                 security = Stock(stock, 'SMART', 'USD')
                 [ticker_close] = ib.reqTickers(security)
@@ -196,6 +208,9 @@ def get_PM_gappers():
         for stock in symbols[:20]:
 
             try:
+
+                news = finviz.get_news(stock)[0]
+                news_date = news[0]
 
                 security = Stock(stock, 'SMART', 'USD')
                 [ticker_close] = ib.reqTickers(security)
