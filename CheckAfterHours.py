@@ -101,7 +101,7 @@ def get_AH_gappers():
                     ib.reqHistoricalData(
                         security,
                         endDateTime='',
-                        durationStr= str(seconds) + ' S',
+                        durationStr=str(seconds) + ' S',
                         barSizeSetting='1 min',
                         whatToShow="TRADES",
                         useRTH=False,
@@ -174,7 +174,6 @@ def get_PM_gappers():
     market_open = dt.datetime.strptime(market_open, '%H:%M:%S').time()
     market_open = dt.datetime.combine(date, market_open)
 
-
     while current_time < market_open:
 
         current_time = dt.datetime.now().replace(microsecond=0).time()
@@ -216,7 +215,7 @@ def get_PM_gappers():
 
                 if ratio > 0 and stock_float < 30000000:
 
-                    file_to_modify = open("afterhours.txt", "a")
+                    file_to_modify = open("premarket.txt", "a")
 
                     print('Ticker', security.symbol)
                     print('Price', price)
@@ -248,5 +247,21 @@ def get_PM_gappers():
 
 
 get_AH_gappers()
-time.sleep(28800)
+
+date = dt.datetime.now().replace(microsecond=0).date()
+
+current_time = dt.datetime.now().replace(microsecond=0).time()
+current_time = dt.datetime.combine(date, current_time)
+
+PM_open = "4:00:00"
+
+PM_open= dt.datetime.strptime(PM_open, '%H:%M:%S').time()
+PM_open = dt.datetime.combine(date, PM_open)
+
+diff = abs((PM_open - current_time).total_seconds())
+
+print(diff)
+
+time.sleep(diff)
+
 get_PM_gappers()
