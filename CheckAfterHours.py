@@ -128,7 +128,7 @@ def get_AH_gappers():
                     print('Afterhours Volume is', ratio, '% of Shares Float')
                     print('Afterhours High is', afterhours_data['high'].max())
                     print('Time of access is', current_time)
-                    print('Change Perc', + str(change_perc) + "%")
+                    print('Change Perc' + str(change_perc) + "%")
                     print('')
 
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
