@@ -42,23 +42,6 @@ def get_AH_gappers():
 
     ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
-    topPercentGainerListed= ScannerSubscription(
-        instrument='STK',
-        locationCode='STK.US.MAJOR',
-        scanCode='TOP_PERC_GAIN')
-
-    tagValues = [
-        TagValue("changePercAbove", "5"),
-        TagValue('priceAbove', 1),
-        TagValue('priceBelow', 25),
-    ]
-
-    # the tagValues are given as 3rd argument; the 2nd argument must always be an empty list
-    # (IB has not documented the 2nd argument and it's not clear what it does)
-    scanner = ib.reqScannerData(topPercentGainerListed, [], tagValues)
-
-    symbols = [sd.contractDetails.contract.symbol for sd in scanner]
-
     date = dt.datetime.now().replace(microsecond=0).date()
 
     current_time = dt.datetime.now().replace(microsecond=0).time()
@@ -73,6 +56,23 @@ def get_AH_gappers():
     after_hours_close = dt.datetime.combine(date, after_hours_close)
 
     while current_time < after_hours_close:
+
+        topPercentGainerListed = ScannerSubscription(
+            instrument='STK',
+            locationCode='STK.US.MAJOR',
+            scanCode='TOP_PERC_GAIN')
+
+        tagValues = [
+            TagValue("changePercAbove", "5"),
+            TagValue('priceAbove', 1),
+            TagValue('priceBelow', 25),
+        ]
+
+        # the tagValues are given as 3rd argument; the 2nd argument must always be an empty list
+        # (IB has not documented the 2nd argument and it's not clear what it does)
+        scanner = ib.reqScannerData(topPercentGainerListed, [], tagValues)
+
+        symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         time.sleep(60)
 
@@ -97,7 +97,7 @@ def get_AH_gappers():
                 seconds = round(diff.seconds)
 
                 # Fetching historical data when market is closed for testing purposes
-                premarket_data = pd.DataFrame(
+                afterhours_data = pd.DataFrame(
                     ib.reqHistoricalData(
                         security,
                         endDateTime='',
@@ -108,7 +108,7 @@ def get_AH_gappers():
                         formatDate=1
                     ))
 
-                volume = sum(premarket_data['volume'].tolist()) * 100
+                volume = sum(afterhours_data['volume'].tolist()) * 100
                 ratio = get_percent(volume, stock_float)
 
                 if ratio > 0 and stock_float < 30000000:
@@ -121,7 +121,7 @@ def get_AH_gappers():
                     print("Volume", volume)
                     print("Stock Sector", stock_sector)
                     print('Afterhours Volume is', ratio, '% of Shares Float')
-                    print('Afterhours High is', premarket_data['high'].max())
+                    print('Afterhours High is', afterhours_data['high'].max())
                     print('Time of access is', current_time)
                     print('')
 
@@ -131,7 +131,7 @@ def get_AH_gappers():
                     file_to_modify.write('Volume: ' + str(volume) + '\n')
                     file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
                     file_to_modify.write('Afterhours Volume is: ' + str(ratio) + '% of Shares Float\n')
-                    file_to_modify.write('Afterhours High is: ' + str(premarket_data['high'].max()) + '\n')
+                    file_to_modify.write('Afterhours High is: ' + str(afterhours_data['high'].max()) + '\n')
                     file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
                     file_to_modify.write('\n')
 
@@ -147,27 +147,7 @@ def get_AH_gappers():
 def get_PM_gappers():
 
     ib = IB()
-
     ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
-
-    topPercentGainerListed = ScannerSubscription(
-        instrument='STK',
-        locationCode='STK.US.MAJOR',
-        scanCode='TOP_PERC_GAIN')
-
-    tagValues = [
-        TagValue("changePercAbove", "5"),
-        TagValue('priceAbove', 1),
-        TagValue('priceBelow', 25),
-    ]
-
-    # the tagValues are given as 3rd argument; the 2nd argument must always be an empty list
-    # (IB has not documented the 2nd argument and it's not clear what it does)
-    scanner = ib.reqScannerData(topPercentGainerListed, [], tagValues)
-
-    symbols = [sd.contractDetails.contract.symbol for sd in scanner]
-
-    df = pd.DataFrame()
 
     date = dt.datetime.now().replace(microsecond=0).date()
 
@@ -179,6 +159,23 @@ def get_PM_gappers():
     market_open = dt.datetime.combine(date, market_open)
 
     while current_time < market_open:
+
+        topPercentGainerListed = ScannerSubscription(
+            instrument='STK',
+            locationCode='STK.US.MAJOR',
+            scanCode='TOP_PERC_GAIN')
+
+        tagValues = [
+            TagValue("changePercAbove", "5"),
+            TagValue('priceAbove', 1),
+            TagValue('priceBelow', 25),
+        ]
+
+        # the tagValues are given as 3rd argument; the 2nd argument must always be an empty list
+        # (IB has not documented the 2nd argument and it's not clear what it does)
+        scanner = ib.reqScannerData(topPercentGainerListed, [], tagValues)
+
+        symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         current_time = dt.datetime.now().replace(microsecond=0).time()
         current_time = dt.datetime.combine(date, current_time)
@@ -246,8 +243,6 @@ def get_PM_gappers():
                 print(traceback.format_exc())
 
     ib.disconnect()
-
-    return df
 
 
 get_AH_gappers()
