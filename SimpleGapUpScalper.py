@@ -4,8 +4,13 @@ from ib_insync import Order
 import sys
 from math import floor
 import pandas as pd
+from datetime import datetime
 
 class GapUpScalper_Driver():
+
+    def seconds_until_end_of_minute(self):
+        dt = datetime.now()
+        return 60 - dt.second
 
     def get_percent(self, first, second):
         if first == 0 or second == 0:
@@ -32,11 +37,11 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib):
+    def check_second_breakout(self, ticker, ib, seconds_left):
 
         resistance_broke_two = False
 
-        time.sleep(60)
+        time.sleep(seconds_left)
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -91,12 +96,14 @@ class GapUpScalper_Driver():
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
 
+            seconds_left = self.seconds_until_end_of_minute()
+
             resistance = ticker_close.marketPrice()
 
-            return ticker, resistance, resistance_broke_one
+            return ticker, resistance, resistance_broke_one, seconds_left
 
         else:
-            return ticker, 0, resistance_broke_one
+            return ticker, 0, resistance_broke_one, 0
 
     def buy_stock(self, ticker, breakout_price, ib):
 
