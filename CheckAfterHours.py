@@ -229,7 +229,6 @@ def get_PM_gappers():
                     print('Premarket Volume is', ratio, '% of Shares Float')
                     print('Premarket High is', premarket_data['high'].max())
                     print('Time of access is', current_time)
-                    file_to_modify.write('\n')
 
                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
                     file_to_modify.write('Price: ' + str(price) + '\n')
@@ -239,6 +238,7 @@ def get_PM_gappers():
                     file_to_modify.write('Premarket Volume is: ' + str(ratio) + '% of Shares Float\n')
                     file_to_modify.write('Premarket High is: ' + str(premarket_data['high'].max()) + '\n')
                     file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                    file_to_modify.write('\n')
 
                     file_to_modify.close()
 
