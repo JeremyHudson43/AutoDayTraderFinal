@@ -37,6 +37,7 @@ def get_percent(first, second):
     return percent
 
 def get_AH_gappers():
+    
 
     ib = IB()
 
@@ -57,6 +58,9 @@ def get_AH_gappers():
 
     while current_time < after_hours_close:
 
+        current_time = dt.datetime.now().replace(microsecond=0).time()
+        current_time = dt.datetime.combine(date, current_time)
+
         topPercentGainerListed = ScannerSubscription(
             instrument='STK',
             locationCode='STK.US.MAJOR',
@@ -75,9 +79,6 @@ def get_AH_gappers():
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         time.sleep(60)
-
-        current_time = dt.datetime.now().replace(microsecond=0).time()
-        current_time = dt.datetime.combine(date, current_time)
 
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols[:20]:
@@ -159,6 +160,9 @@ def get_PM_gappers():
     market_open = dt.datetime.combine(date, market_open)
 
     while current_time < market_open:
+        
+        current_time = dt.datetime.now().replace(microsecond=0).time()
+        current_time = dt.datetime.combine(date, current_time)
 
         topPercentGainerListed = ScannerSubscription(
             instrument='STK',
@@ -176,9 +180,6 @@ def get_PM_gappers():
         scanner = ib.reqScannerData(topPercentGainerListed, [], tagValues)
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
-
-        current_time = dt.datetime.now().replace(microsecond=0).time()
-        current_time = dt.datetime.combine(date, current_time)
 
         time.sleep(60)
 
