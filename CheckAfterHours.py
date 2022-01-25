@@ -7,6 +7,7 @@ import traceback
 import time
 from datetime import datetime, timedelta
 import yfinance as yf
+import finviz
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
