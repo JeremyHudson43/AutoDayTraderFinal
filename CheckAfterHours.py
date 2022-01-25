@@ -81,7 +81,7 @@ def get_PM_gappers():
                 time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time_of_news.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 36000:
+                if 300 < (current_time - news_datetime).total_seconds() < 900:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -93,7 +93,7 @@ def get_PM_gappers():
                     stock_float = value_to_float(finviz_stock['Shs Float'])
                     stock_sector = finviz_stock['Sector']
 
-                    if stock_float < 30000000000000:
+                    if stock_float < 30000000:
 
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
@@ -112,7 +112,7 @@ def get_PM_gappers():
 
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 100 and volume > 5000:
+                        if 1 <= change_perc <= 10 and volume > 5000:
 
                             today = dt.datetime.today().strftime('%Y-%m-%d')
 
