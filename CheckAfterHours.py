@@ -64,7 +64,7 @@ def get_AH_gappers():
         topPercentGainerListed = ScannerSubscription(
             instrument='STK',
             locationCode='STK.US.MAJOR',
-            scanCode='TOP_PERC_GAIN')
+            scanCode='TOP_TRADE_RATE')
 
         tagValues = [
             TagValue("changePercAbove", "5"),
@@ -83,6 +83,8 @@ def get_AH_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols:
 
+            print(stock)
+
             time.sleep(5)
 
             try:
@@ -94,7 +96,7 @@ def get_AH_gappers():
                 news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
                 news_datetime = dt.datetime.combine(news_date_year , news_datetime)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 3600:
+                if 300 < (current_time - news_datetime).total_seconds() < 3600000:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -190,7 +192,7 @@ def get_PM_gappers():
         topPercentGainerListed = ScannerSubscription(
             instrument='STK',
             locationCode='STK.US.MAJOR',
-            scanCode='TOP_PERC_GAIN')
+            scanCode='TOP_TRADE_RATE')
 
         tagValues = [
             TagValue("changePercAbove", "5"),
