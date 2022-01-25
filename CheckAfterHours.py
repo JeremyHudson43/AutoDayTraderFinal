@@ -76,7 +76,6 @@ def get_PM_gappers():
                 company = stock_to_remove['Company']
 
                 if company != 'Financial':
-                    # print(symbol)
                     final_symbols.append(symbol)
 
             except Exception as err:
@@ -137,39 +136,34 @@ def get_PM_gappers():
                             file_to_modify = open(filepath, "a+")
                             file_to_modify.close()
 
-                            with open(filepath) as myfile:
-                                if 'Ticker: ' + security.symbol not in myfile.read():
+                            print('Ticker', security.symbol)
+                            print('Current Price', price)
+                            print('Close Price', finviz_price)
+                            print("Shares Float", stock_float)
+                            print("120 second volume", volume)
+                            print("Stock Sector", stock_sector)
+                            print('Time of access is', current_time)
+                            print('Change Perc ', str(change_perc) + "%")
+                            print('Time of News', news_datetime)
+                            print('Title:', title)
+                            print('')
 
-                                    myfile.close()
+                            file_to_modify = open(filepath, "a+")
 
-                                    print('Ticker', security.symbol)
-                                    print('Current Price', price)
-                                    print('Close Price', finviz_price)
-                                    print("Shares Float", stock_float)
-                                    print("120 second volume", volume)
-                                    print("Stock Sector", stock_sector)
-                                    print('Time of access is', current_time)
-                                    print('Change Perc ', str(change_perc) + "%")
-                                    print('Time of News', news_datetime)
-                                    print('Title:', title)
-                                    print('')
+                            file_to_modify.write('\n')
+                            file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                            file_to_modify.write('Current Price: ' + str(price) + '\n')
+                            file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
+                            file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                            file_to_modify.write('120 second volume: ' + str(volume) + '\n')
+                            file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                            file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
+                            file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
+                            file_to_modify.write('Title: ' + title + '\n')
+                            file_to_modify.write('\n')
 
-                                    file_to_modify = open(filepath, "a+")
-
-                                    file_to_modify.write('\n')
-                                    file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                                    file_to_modify.write('Current Price: ' + str(price) + '\n')
-                                    file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
-                                    file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                                    file_to_modify.write('120 second volume: ' + str(volume) + '\n')
-                                    file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                                    file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                                    file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
-                                    file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
-                                    file_to_modify.write('Title: ' + title + '\n')
-                                    file_to_modify.write('\n')
-
-                                    file_to_modify.close()
+                            file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
