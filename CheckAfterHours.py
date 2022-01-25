@@ -69,14 +69,16 @@ def get_PM_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols[:20]:
 
+            time_of_news.sleep(5)
+
             try:
 
                 ticker = yf.Ticker(stock)
 
                 title = ticker.news[0]['title']
-                
-                time = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
-                news_datetime = time.replace(microsecond=0)
+
+                time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
+                news_datetime = time_of_news.replace(microsecond=0)
 
                 if 300 < (current_time - news_datetime).total_seconds() < 36000:
 
