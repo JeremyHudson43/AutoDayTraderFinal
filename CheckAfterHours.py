@@ -67,21 +67,23 @@ def get_PM_gappers():
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
+        final_symbols = []
+
         for symbol in symbols:
             try:
 
                 stock_to_remove = finviz.get_stock(symbol)
                 company = stock_to_remove['Company']
 
-                if company == 'Financial':
-                    symbols.remove(symbol)
+                if company != 'Financial':
+                    # print(symbol)
+                    final_symbols.append(symbol)
 
             except Exception as err:
-                symbols.remove(symbol)
                 print(err)
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:3]:
+        for stock in final_symbols[:3]:
 
             print(stock)
 
