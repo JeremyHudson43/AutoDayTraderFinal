@@ -129,13 +129,7 @@ def get_PM_gappers():
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
                         if 1 <= change_perc <= 10 and volume > 5000:
-
-                            today = dt.datetime.today().strftime('%Y-%m-%d')
-
-                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\news\\' + today + '_news.txt'
-                            file_to_modify = open(filepath, "a+")
-                            file_to_modify.close()
-
+                            
                             print('Ticker', security.symbol)
                             print('Current Price', price)
                             print('Close Price', finviz_price)
@@ -147,6 +141,9 @@ def get_PM_gappers():
                             print('Time of News', news_datetime)
                             print('Title:', title)
                             print('')
+
+                            today = dt.datetime.today().strftime('%Y-%m-%d')
+                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\news\\' + today + '_news.txt'
 
                             file_to_modify = open(filepath, "a+")
 
