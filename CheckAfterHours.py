@@ -6,6 +6,7 @@ import traceback
 import yfinance as yf
 import finviz
 import time
+import pandas as pd
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -97,7 +98,21 @@ def get_PM_gappers():
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
-                        if 5 <= change_perc <= 10:
+                        # Fetching historical data when market is closed for testing purposes
+                        afterhours_data = pd.DataFrame(
+                            ib.reqHistoricalData(
+                                security,
+                                endDateTime='',
+                                durationStr= '120 S',
+                                barSizeSetting='1 min',
+                                whatToShow="TRADES",
+                                useRTH=False,
+                                formatDate=1
+                            ))
+
+                        volume = sum(afterhours_data['volume'].tolist()) * 100
+
+                        if 1 <= change_perc <= 10 and volume > 5000:
 
                             with open('premarket.txt') as myfile:
                                 if 'Ticker: ' + security.symbol not in myfile.read():
