@@ -97,7 +97,7 @@ def get_PM_gappers():
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
-                        if change_perc >= 4:
+                        if 5 <= change_perc <= 10:
 
                             with open('premarket.txt') as myfile:
                                 if 'Ticker: ' + security.symbol not in myfile.read():
@@ -112,7 +112,7 @@ def get_PM_gappers():
                                     print('Time of access is', current_time)
                                     print('Change Perc ', str(change_perc) + "%")
                                     print('Time of News', news_datetime)
-                                    print('Title', title)
+                                    print('Title:', title)
                                     print('')
 
                                     file_to_modify = open("premarket.txt", "a")
