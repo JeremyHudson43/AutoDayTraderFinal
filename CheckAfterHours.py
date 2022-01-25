@@ -68,7 +68,7 @@ def get_PM_gappers():
 
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols[:20]:
-            
+
             try:
 
                 ticker = yf.Ticker(stock)
@@ -76,7 +76,7 @@ def get_PM_gappers():
                 time = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 3600:
+                if 300 < (current_time - news_datetime).total_seconds() < 36000:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -89,36 +89,41 @@ def get_PM_gappers():
                     stock_sector = finviz_stock['Sector']
 
                     if stock_float < 30000000000000:
-
-                        file_to_modify = open("premarket.txt", "a")
-
+                        
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
                         if change_perc >= 4:
 
-                            print('Ticker', security.symbol)
-                            print('Current Price', price)
-                            print('Close Price', finviz_price)
-                            print("Shares Float", stock_float)
-                            print("Stock Sector", stock_sector)
-                            print('Time of access is', current_time)
-                            print('Change Perc ', str(change_perc) + "%")
-                            print('Time of News', news_datetime)
-                            print('')
+                            with open('premarket.txt') as myfile:
+                                if 'Ticker ' + security.symbol not in myfile.read():
+                                    
+                                    myfile.close()
 
-                            file_to_modify.write('\n')
-                            file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                            file_to_modify.write('Current Price: ' + str(price) + '\n')
-                            file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
-                            file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                            file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                            file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
-                            file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
-                            file_to_modify.write('\n')
+                                    print('Ticker', security.symbol)
+                                    print('Current Price', price)
+                                    print('Close Price', finviz_price)
+                                    print("Shares Float", stock_float)
+                                    print("Stock Sector", stock_sector)
+                                    print('Time of access is', current_time)
+                                    print('Change Perc ', str(change_perc) + "%")
+                                    print('Time of News', news_datetime)
+                                    print('')
 
-                            file_to_modify.close()
+                                    file_to_modify = open("premarket.txt", "a")
+
+                                    file_to_modify.write('\n')
+                                    file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                                    file_to_modify.write('Current Price: ' + str(price) + '\n')
+                                    file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
+                                    file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                                    file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                                    file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                                    file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
+                                    file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
+                                    file_to_modify.write('\n')
+        
+                                    file_to_modify.close()
 
             except Exception as err:
                 print(traceback.format_exc())
