@@ -80,7 +80,7 @@ def get_AH_gappers():
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols:
+        for stock in symbols[:20]:
 
             print(stock)
 
@@ -204,7 +204,7 @@ def get_PM_gappers():
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols:
+        for stock in symbols[:20]:
 
             # time.sleep(5)
 
