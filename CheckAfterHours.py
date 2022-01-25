@@ -5,7 +5,7 @@ import datetime as dt
 import traceback
 import yfinance as yf
 import finviz
-
+import time
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -69,7 +69,7 @@ def get_PM_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols[:20]:
 
-            time_of_news.sleep(5)
+            time.sleep(5)
 
             try:
 
