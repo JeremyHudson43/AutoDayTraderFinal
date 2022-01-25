@@ -73,6 +73,8 @@ def get_PM_gappers():
 
                 ticker = yf.Ticker(stock)
 
+                title = ticker.news[0]['title']
+                
                 time = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time.replace(microsecond=0)
 
@@ -108,6 +110,7 @@ def get_PM_gappers():
                                     print('Time of access is', current_time)
                                     print('Change Perc ', str(change_perc) + "%")
                                     print('Time of News', news_datetime)
+                                    print('Title', title)
                                     print('')
 
                                     file_to_modify = open("premarket.txt", "a")
@@ -121,6 +124,7 @@ def get_PM_gappers():
                                     file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
                                     file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
                                     file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
+                                    file_to_modify.write('Title: ' + title + '\n')
                                     file_to_modify.write('\n')
 
                                     file_to_modify.close()
