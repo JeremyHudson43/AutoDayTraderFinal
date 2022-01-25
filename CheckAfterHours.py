@@ -96,7 +96,7 @@ def get_AH_gappers():
                 news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
                 news_datetime = dt.datetime.combine(news_date_year , news_datetime)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 3600000:
+                if 300 < (current_time - news_datetime).total_seconds() < 3600:
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -133,7 +133,7 @@ def get_AH_gappers():
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
-                        if change_perc > 1:
+                        if change_perc >= 4 and volume > 5000:
 
                             print('Ticker', security.symbol)
                             print('Current Price', price)
@@ -257,7 +257,7 @@ def get_PM_gappers():
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
-                        if change_perc > 1:
+                        if change_perc >= 4 and volume > 5000:
 
                             print('Ticker', security.symbol)
                             print('Current Price', price)
