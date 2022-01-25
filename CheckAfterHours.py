@@ -5,8 +5,8 @@ import random
 import datetime as dt
 import traceback
 import time
-import finviz
 from datetime import datetime, timedelta
+import yfinance as yf
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -78,8 +78,6 @@ def get_AH_gappers():
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
-        # time.sleep(60)
-
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols:
 
@@ -89,12 +87,10 @@ def get_AH_gappers():
 
             try:
 
-                news = finviz.get_news(stock)[0]
-                news_date = news[0]
+                ticker = yf.Ticker(stock)
 
-                news_date_year = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').date()
-                news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
-                news_datetime = dt.datetime.combine(news_date_year , news_datetime)
+                time = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
+                news_datetime = time.replace(microsecond=0)
 
                 if 300 < (current_time - news_datetime).total_seconds() < 3600:
 
@@ -209,16 +205,14 @@ def get_PM_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in symbols:
 
-            time.sleep(5)
+            # time.sleep(5)
 
             try:
 
-                news = finviz.get_news(stock)[0]
-                news_date = news[0]
+                ticker = yf.Ticker(stock)
 
-                news_date_year = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').date()
-                news_datetime = dt.datetime.strptime(news_date, '%Y-%m-%d %H:%M').time()
-                news_datetime = dt.datetime.combine(news_date_year, news_datetime)
+                time = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
+                news_datetime = time.replace(microsecond=0)
 
                 if 300 < (current_time - news_datetime).total_seconds() < 3600:
 
@@ -294,7 +288,7 @@ def get_PM_gappers():
     ib.disconnect()
 
 
-get_AH_gappers()
+# get_AH_gappers()
 
 
 date = dt.datetime.now().replace(microsecond=0).date()
@@ -309,8 +303,8 @@ PM_open = dt.datetime.combine(date, PM_open) + timedelta(days=1)
 
 diff = abs((PM_open - current_time).total_seconds())
 
-print("AH Gappers Scanned! Sleeping for " + str(diff) + " seconds")
+# print("AH Gappers Scanned! Sleeping for " + str(diff) + " seconds")
 
-time.sleep(diff)
+# time.sleep(diff)
 
 get_PM_gappers()
