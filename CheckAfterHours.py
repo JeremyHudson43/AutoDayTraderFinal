@@ -112,7 +112,13 @@ def get_PM_gappers():
 
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 10 and volume > 5000:
+                        if 1 <= change_perc <= 100 and volume > 5000:
+
+                            today = dt.datetime.today().strftime('%Y-%m-%d')
+
+                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\news\\' + today + '_news.txt'
+                            file_to_modify = open(filepath, "a+")
+                            file_to_modify.close()
 
                             with open('premarket.txt') as myfile:
                                 if 'Ticker: ' + security.symbol not in myfile.read():
@@ -131,7 +137,7 @@ def get_PM_gappers():
                                     print('Title:', title)
                                     print('')
 
-                                    file_to_modify = open("premarket.txt", "a")
+                                    file_to_modify = open(filepath, "a+")
 
                                     file_to_modify.write('\n')
                                     file_to_modify.write('Ticker: ' + security.symbol + '\n')
