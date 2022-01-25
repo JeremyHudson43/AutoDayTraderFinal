@@ -2,11 +2,11 @@ from ib_insync.contract import Stock
 from ib_insync.ib import IB, ScannerSubscription, TagValue
 import pandas as pd
 import random
-import finviz
 import datetime as dt
 import traceback
 import time
 import finviz
+from datetime import datetime, timedelta
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -302,10 +302,10 @@ date = dt.datetime.now().replace(microsecond=0).date()
 current_time = dt.datetime.now().replace(microsecond=0).time()
 current_time = dt.datetime.combine(date, current_time)
 
-PM_open = "4:00:00"
+PM_open = "4:00:00 AM"
 
-PM_open= dt.datetime.strptime(PM_open, '%H:%M:%S').time()
-PM_open = dt.datetime.combine(date, PM_open)
+PM_open = dt.datetime.strptime(PM_open, '%I:%M:%S %p').time()
+PM_open = dt.datetime.combine(date, PM_open) + timedelta(days=1)
 
 diff = abs((PM_open - current_time).total_seconds())
 
