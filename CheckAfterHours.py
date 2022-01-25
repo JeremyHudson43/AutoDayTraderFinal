@@ -120,7 +120,7 @@ def get_PM_gappers():
                             file_to_modify = open(filepath, "a+")
                             file_to_modify.close()
 
-                            with open('premarket.txt') as myfile:
+                            with open(filepath) as myfile:
                                 if 'Ticker: ' + security.symbol not in myfile.read():
 
                                     myfile.close()
