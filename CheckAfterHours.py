@@ -69,26 +69,23 @@ def get_PM_gappers():
 
         for symbol in symbols:
             try:
-                
-                stock = finviz.get_stock(symbol)
 
-                sector = stock['Sector']
-                industry = stock['Industry']
-                company = stock ['Company']
+                stock_to_remove = finviz.get_stock(symbol)
+                company = stock_to_remove['Company']
 
-                if sector == 'Exchange Traded Fund' or industry == 'Exchange Traded Fund'\
-                        or industry == 'USA' or company == 'Financial':
+                if company == 'Financial':
                     symbols.remove(symbol)
+
             except Exception as err:
                 symbols.remove(symbol)
                 print(err)
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:5]:
+        for stock in symbols[:3]:
 
             print(stock)
 
-            time.sleep(5)
+            time.sleep(15)
 
             try:
 
