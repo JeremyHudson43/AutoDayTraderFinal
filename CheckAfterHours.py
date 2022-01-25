@@ -67,8 +67,18 @@ def get_PM_gappers():
 
         symbols = [sd.contractDetails.contract.symbol for sd in scanner]
 
+        for symbol in symbols:
+            try:
+                sector = finviz.get_stock(symbol)['Sector']
+                if sector == 'Exchange Traded Fund':
+                    symbols.remove(symbol)
+            except Exception as err:
+                print(err)
+
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in symbols[:20]:
+        for stock in symbols[:5]:
+
+            print(stock)
 
             time.sleep(5)
 
