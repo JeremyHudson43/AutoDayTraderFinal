@@ -89,15 +89,15 @@ def get_PM_gappers():
                     stock_sector = finviz_stock['Sector']
 
                     if stock_float < 30000000000000:
-                        
+
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
 
                         if change_perc >= 4:
 
                             with open('premarket.txt') as myfile:
-                                if 'Ticker ' + security.symbol not in myfile.read():
-                                    
+                                if 'Ticker: ' + security.symbol not in myfile.read():
+
                                     myfile.close()
 
                                     print('Ticker', security.symbol)
@@ -122,7 +122,7 @@ def get_PM_gappers():
                                     file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
                                     file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
                                     file_to_modify.write('\n')
-        
+
                                     file_to_modify.close()
 
             except Exception as err:
