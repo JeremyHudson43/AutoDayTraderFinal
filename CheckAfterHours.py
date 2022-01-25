@@ -69,12 +69,12 @@ def get_PM_gappers():
 
         for symbol in symbols:
             try:
+                
+                stock = finviz.get_stock(symbol)
 
-                print(finviz.get_stock(symbol))
-
-                sector = finviz.get_stock(symbol)['Sector']
-                industry = finviz.get_stock(symbol)['Industry']
-                company = finviz.get_stock(symbol)['Company']
+                sector = stock['Sector']
+                industry = stock['Industry']
+                company = stock ['Company']
 
                 if sector == 'Exchange Traded Fund' or industry == 'Exchange Traded Fund'\
                         or industry == 'USA' or company == 'Financial':
