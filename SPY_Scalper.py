@@ -66,7 +66,7 @@ def set_trailing_stop(stock, time_until_market_close, qty):
 
     time.sleep(time_until_market_close - 900)
 
-    sell_stock(ib, qty, 'UPRO')
+    sell_stock(ib, qty,  stock.symbol)
 
     ib.disconnect()
 
