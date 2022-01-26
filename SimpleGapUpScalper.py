@@ -64,12 +64,12 @@ class GapUpScalper_Driver():
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        print('\nChecking for second breakout at ' + str(second_breakout_price) + "...")
-        print("Current Price", ticker_close.marketPrice())
+        print('\nChecking for ' + ticker + '\'s second breakout at $' + str(round(second_breakout_price, 2)) + "...")
+        print(ticker + "\'s current Price $" + str(round(ticker_close.marketPrice(), 2)))
 
         if ticker_close.marketPrice() >= second_breakout_price:
             resistance_broke_two = True
-            print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
+            print("\nResistance Two Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
 
             breakout_price = ticker_close.marketPrice()
 
@@ -86,15 +86,15 @@ class GapUpScalper_Driver():
 
         limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), breakout_area)
 
-        print("Current Price:", ticker_close.marketPrice())
+        print("Current Price: $", ticker_close.marketPrice())
         print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
         print('Checking for first breakout...')
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() >= breakout_area:
+        if ticker_close.marketPrice() <= breakout_area:
             resistance_broke_one = True
-            print("\nResistance One Broke at $" + str(ticker_close.marketPrice()) + "!")
+            print("\nResistance One Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
 
             seconds_left = self.seconds_until_end_of_minute()
 

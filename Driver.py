@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
                 print('- - - - - - - - - ')
                 print("Ticker", ticker)
-                print("\nPremarket High", premarket_high)
+                print("\nPremarket High $", premarket_high)
 
                 ticker, resistance_price, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
 
