@@ -49,17 +49,16 @@ def buy_stock(ticker, ib):
 
    percent_of_acct_to_trade = 0.03
 
-   current_price = ticker_close.marketPrice() * 1.02
+   current_price = ticker_close.marketPrice()
 
    qty = (acc_vals // current_price) * percent_of_acct_to_trade
    qty = floor(qty)
-
-   print(qty)
 
    buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=current_price)
    buy_order.outsideRth = True
 
    ib.placeOrder(ticker_contract, buy_order)
+
 
 
 def get_PM_gappers():
@@ -119,7 +118,7 @@ def get_PM_gappers():
                 time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time_of_news.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 9000:
+                if 300 < (current_time - news_datetime).total_seconds() < 1800:
 
                     print(title)
 
@@ -133,7 +132,7 @@ def get_PM_gappers():
                     stock_float = value_to_float(finviz_stock['Shs Float'])
                     stock_sector = finviz_stock['Sector']
 
-                    if stock_float < 3000000000:
+                    if stock_float < 500000000000:
 
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
@@ -152,7 +151,7 @@ def get_PM_gappers():
 
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 15:
+                        if 1 <= change_perc <= 25:
 
                             print('Ticker', security.symbol)
                             print('Current Price', price)
