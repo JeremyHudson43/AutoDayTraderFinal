@@ -60,11 +60,13 @@ def set_trailing_stop(stock, time_until_market_close, qty):
 
     ib.placeOrder(stock, sell_order)
 
-    time.sleep(time_until_market_close - 900)
+    time.sleep(time_until_market_close - 600)
 
     ib.reqGlobalCancel()
 
-    sell_stock(ib, qty, stock.symbol)
+    qty_owned = ib.positions()[0].position
+
+    sell_stock(ib, qty_owned, stock.symbol)
 
     ib.disconnect()
 
@@ -120,7 +122,7 @@ def driver_func():
     time_until_market_close = check_time()
 
     # Run the algorithm till the daily time frame exhausts:
-    while time_until_market_close > 200:
+    while time_until_market_close > 900:
 
         time.sleep(5)
 
