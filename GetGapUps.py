@@ -56,7 +56,6 @@ class GetGapper_Driver():
 
         tagValues = [
             TagValue("changePercAbove", "5"),
-            TagValue('priceAbove', 1),
             TagValue('priceBelow', 25),
         ]
 
@@ -97,7 +96,7 @@ class GetGapper_Driver():
                 volume = sum(premarket_data['volume'].tolist()) * 100
                 ratio = self.get_percent(volume, stock_float)
 
-                if ratio > 5 and stock_float < 30000000:
+                if ratio > 1 and stock_float < 500000000000:
 
                     print('Ticker', security.symbol)
                     print('Price', price)

@@ -39,9 +39,8 @@ class GapUpScalper_Driver():
 
     def check_second_breakout(self, ticker, ib, seconds_left):
 
-        resistance_broke_two = False
-
         time.sleep(seconds_left)
+        resistance_broke_two = False
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
 
@@ -60,23 +59,23 @@ class GapUpScalper_Driver():
 
         second_breakout_price = highest_price * 1.005
 
-        while not resistance_broke_two:
+        time.sleep(1)
 
-            time.sleep(1)
+        ticker_contract = Stock(ticker, 'SMART', 'USD')
+        [ticker_close] = ib.reqTickers(ticker_contract)
 
-            ticker_contract = Stock(ticker, 'SMART', 'USD')
-            [ticker_close] = ib.reqTickers(ticker_contract)
+        print('\nChecking for second breakout at ' + str(second_breakout_price) + "...")
+        print("Current Price", ticker_close.marketPrice())
 
-            print('\nChecking for second breakout at ' + str(second_breakout_price) + "...")
-            print("Current Price", ticker_close.marketPrice())
+        if ticker_close.marketPrice() >= second_breakout_price:
+            resistance_broke_two = True
+            print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
 
-            if ticker_close.marketPrice() >= second_breakout_price:
-                resistance_broke_two = True
-                print("\nResistance Two Broke at $" + str(ticker_close.marketPrice()) + "!")
+            breakout_price = ticker_close.marketPrice()
 
-                breakout_price = ticker_close.marketPrice()
-
-                return ticker, breakout_price, resistance_broke_two
+            return ticker, breakout_price, resistance_broke_two
+        else:
+            return ticker, 0, resistance_broke_two
 
     def check_first_breakout(self, ticker, breakout_area, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -106,21 +105,24 @@ class GapUpScalper_Driver():
         else:
             return ticker, 0, resistance_broke_one, 0
 
-    def buy_stock(self, ticker, breakout_price, ib):
+    def buy_stock(self, ticker, ib):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
+
        [ticker_close] = ib.reqTickers(ticker_contract)
+
+       current_price = ticker_close.marketPrice()
 
        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-       percent_of_acct_to_trade = 0.1
+       percent_of_acct_to_trade = 0.2
 
-       qty = (acc_vals // breakout_price) * percent_of_acct_to_trade
+       qty = (acc_vals // current_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       limit_price = round(breakout_price, 2)
-       take_profit = round(breakout_price * 1.10, 2)
-       stop_loss_price = round(breakout_price * 0.98, 2)
+       limit_price = round(current_price, 2)
+       take_profit = round(current_price * 1.04, 2)
+       stop_loss_price = round(current_price * 0.98, 2)
 
        buy_order = ib.bracketOrder(
            'BUY',

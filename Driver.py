@@ -61,6 +61,10 @@ def generate_gapper_CSV():
 
 if __name__ == "__main__":
 
+    # IDEAS TO TRY:
+    # find stocks with good intraday support and scalp them
+    # check afterhours and premarket activity
+
     check_time()
 
     record_df = pd.DataFrame()
@@ -74,6 +78,9 @@ if __name__ == "__main__":
     sleep_until_market_open()
     
     time_until_market_close = check_time()
+
+    tickers_that_had_first_breakout = []
+    prices_where_ticker_first_brokeout = []
 
     while time_until_market_close > 600:
 
@@ -91,10 +98,18 @@ if __name__ == "__main__":
                 print("\nPremarket High", premarket_high)
 
                 ticker, resistance_price, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
+
                 if resistance_broke_one:
-                    ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, seconds_left)
-                    if resistance_broke_two:
-                        purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)
+
+                    tickers_that_had_first_breakout.append(ticker)
+                    prices_where_ticker_first_brokeout.append(resistance_price)
+
+                    if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
+
+                        for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
+                            ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, seconds_left)
+                            if resistance_broke_two:
+                                purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)
 
             elif purchased:
                 print('\nPurchased! Sleeping until 5 minutes before market close')

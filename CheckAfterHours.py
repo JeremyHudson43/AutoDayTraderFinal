@@ -119,7 +119,7 @@ def get_PM_gappers():
                 time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time_of_news.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 1800:
+                if 300 < (current_time - news_datetime).total_seconds() < 900:
 
                     print(title)
 
@@ -215,4 +215,4 @@ diff = abs((PM_open - current_time).total_seconds())
 
 # time.sleep(diff)
 
-get_PM_gappers()
+# get_PM_gappers()
