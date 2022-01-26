@@ -50,7 +50,7 @@ class GapUpScalper_Driver():
         print('\nChecking for ' + ticker + '\'s second breakout at: $' + str(round(second_breakout_price, 2)) + "...")
         print(ticker + "\'s current price: $" + str(round(ticker_close.marketPrice(), 2)))
 
-        if ticker_close.marketPrice() >= second_breakout_price:
+        if ticker_close.marketPrice() <= second_breakout_price:
             resistance_broke_two = True
             print("\nResistance Two Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
 
@@ -69,7 +69,7 @@ class GapUpScalper_Driver():
 
         limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), breakout_area)
 
-        print("Current " + ticker + " Price: $", ticker_close.marketPrice())
+        print("Current " + ticker + " Price: $", round(ticker_close.marketPrice(), 2))
         print("Difference", str(round(abs(limit_market_difference), 2)) + "%")
         print('Checking for first breakout...')
 

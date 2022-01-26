@@ -113,7 +113,7 @@ if __name__ == "__main__":
                             ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance, seconds_left)
 
                             if resistance_broke_two:
-                                purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)
+                                purchased, qty, ticker = scalper.buy_stock(ticker, ib)
 
             elif purchased:
                 print('\nPurchased! Sleeping until 5 minutes before market close')
