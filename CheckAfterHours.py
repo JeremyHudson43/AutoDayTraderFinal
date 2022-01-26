@@ -1,5 +1,5 @@
 from ib_insync.contract import Stock
-from ib_insync.ib import IB, ScannerSubscription, TagValue, LimitOrder
+from ib_insync.ib import IB, ScannerSubscription, TagValue, LimitOrder, Order
 import random
 import datetime as dt
 import traceback
@@ -9,6 +9,7 @@ import time
 import pandas as pd
 from datetime import timedelta
 from math import floor
+import sys
 
 
 def value_to_float(x):
@@ -59,6 +60,10 @@ def buy_stock(ticker, ib):
 
    ib.placeOrder(ticker_contract, buy_order)
 
+   time.sleep(30)
+
+   sell_order = Order(orderId=6, orderType = 'MKT', action='SELL', totalQuantity=qty)
+   ib.placeOrder(ticker_contract, sell_order)
 
 
 def get_PM_gappers():
@@ -186,6 +191,8 @@ def get_PM_gappers():
                             file_to_modify.close()
 
                             buy_stock(stock, ib)
+
+                            sys.exit(0)
 
                 time.sleep(30)
 
