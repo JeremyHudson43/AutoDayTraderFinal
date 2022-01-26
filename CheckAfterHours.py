@@ -1,5 +1,5 @@
 from ib_insync.contract import Stock
-from ib_insync.ib import IB, ScannerSubscription, TagValue
+from ib_insync.ib import IB, ScannerSubscription, TagValue, LimitOrder
 import random
 import datetime as dt
 import traceback
@@ -7,6 +7,9 @@ import yfinance as yf
 import finviz
 import time
 import pandas as pd
+from datetime import timedelta
+from math import floor
+
 
 def value_to_float(x):
     if type(x) == float or type(x) == int:
@@ -36,6 +39,27 @@ def get_percent(first, second):
     else:
         percent = first / second * 100
     return percent
+
+def buy_stock(ticker, ib):
+
+   ticker_contract = Stock(ticker, 'SMART', 'USD')
+   [ticker_close] = ib.reqTickers(ticker_contract)
+
+   acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+
+   percent_of_acct_to_trade = 0.03
+
+   current_price = ticker_close.marketPrice() * 1.02
+
+   qty = (acc_vals // current_price) * percent_of_acct_to_trade
+   qty = floor(qty)
+
+   print(qty)
+
+   buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=current_price)
+   buy_order.outsideRth = True
+
+   ib.placeOrder(ticker_contract, buy_order)
 
 
 def get_PM_gappers():
@@ -82,11 +106,9 @@ def get_PM_gappers():
                 print(err)
 
         # loop through the scanner results and get the contract details of top 20 results
-        for stock in final_symbols[:3]:
+        for stock in final_symbols[:5]:
 
             print(stock)
-
-            time.sleep(15)
 
             try:
 
@@ -97,7 +119,9 @@ def get_PM_gappers():
                 time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time_of_news.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 900:
+                if 300 < (current_time - news_datetime).total_seconds() < 9000:
+
+                    print(title)
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -109,7 +133,7 @@ def get_PM_gappers():
                     stock_float = value_to_float(finviz_stock['Shs Float'])
                     stock_sector = finviz_stock['Sector']
 
-                    if stock_float < 30000000:
+                    if stock_float < 3000000000:
 
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
@@ -128,8 +152,8 @@ def get_PM_gappers():
 
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 10 and volume > 5000:
-                            
+                        if 1 <= change_perc <= 15:
+
                             print('Ticker', security.symbol)
                             print('Current Price', price)
                             print('Close Price', finviz_price)
@@ -162,9 +186,31 @@ def get_PM_gappers():
 
                             file_to_modify.close()
 
+                            buy_stock(stock, ib)
+
+                time.sleep(30)
+
             except Exception as err:
                 print(traceback.format_exc())
 
     ib.disconnect()
+
+
+
+date = dt.datetime.now().replace(microsecond=0).date()
+
+current_time = dt.datetime.now().replace(microsecond=0).time()
+current_time = dt.datetime.combine(date, current_time)
+
+PM_open = "4:00:00 AM"
+
+PM_open = dt.datetime.strptime(PM_open, '%I:%M:%S %p').time()
+PM_open = dt.datetime.combine(date, PM_open) + timedelta(days=1)
+
+diff = abs((PM_open - current_time).total_seconds())
+
+# print("Sleeping for " + str(diff) + " seconds")
+
+# time.sleep(diff)
 
 get_PM_gappers()
