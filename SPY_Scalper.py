@@ -58,21 +58,21 @@ def set_trailing_stop(stock, time_until_market_close, qty):
     sell_order = Order(orderId=random.randint(301, 600), action='Sell', orderType='TRAIL',
                        trailingPercent=1, totalQuantity=qty)
 
-    sell_order = ib.placeOrder(stock, sell_order)
-
-    while not sell_order.isDone():
-        time.sleep(1)
-        print("Waiting for sell order to complete..")
+    ib.placeOrder(stock, sell_order)
 
     time.sleep(time_until_market_close - 900)
 
-    sell_stock(ib, qty,  stock.symbol)
+    ib.reqGlobalCancel()
+
+    sell_stock(ib, qty, stock.symbol)
 
     ib.disconnect()
 
 
 def sell_stock(ib, qty, ticker):
-    ib.reqGlobalCancel()
+    ib.disconnect()
+
+    ib.connect('127.0.0.1', 7497, clientId=random.randint(900, 1200))
 
     if qty > 0:
         ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -86,6 +86,8 @@ def sell_stock(ib, qty, ticker):
         time.sleep(10)
 
         sys.exit(0)
+
+    ib.disconnect()
 
 
 def check_time():
@@ -118,7 +120,7 @@ def driver_func():
     time_until_market_close = check_time()
 
     # Run the algorithm till the daily time frame exhausts:
-    while time_until_market_close > 600:
+    while time_until_market_close > 200:
 
         time.sleep(5)
 
