@@ -107,6 +107,7 @@ if __name__ == "__main__":
 
                         for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
                             ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, seconds_left)
+
                             if resistance_broke_two:
                                 purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)
 
