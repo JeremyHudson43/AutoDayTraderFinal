@@ -93,20 +93,24 @@ if __name__ == "__main__":
 
             if not purchased:
 
-                print('- - - - - - - - - ')
-                print("Ticker", ticker)
-                print("\nPremarket High $", premarket_high)
+                if ticker not in tickers_that_had_first_breakout:
 
-                ticker, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
+                    print('- - - - - - - - - ')
+                    print("Ticker", ticker)
+                    print("\nPremarket High $", premarket_high)
+
+                    ticker, highest_price, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
 
                 if resistance_broke_one:
 
-                    tickers_that_had_first_breakout.append(ticker)
+                    if ticker not in tickers_that_had_first_breakout:
+                        tickers_that_had_first_breakout.append(ticker)
+                        prices_where_ticker_first_brokeout.append(highest_price)
 
-                    if len(tickers_that_had_first_breakout) > 0:
+                    if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
 
                         for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
-                            ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, seconds_left)
+                            ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance, seconds_left)
 
                             if resistance_broke_two:
                                 purchased, qty, ticker = scalper.buy_stock(ticker, resistance_price, ib)

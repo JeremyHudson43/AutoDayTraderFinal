@@ -37,29 +37,12 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib, seconds_left):
+    def check_second_breakout(self, ticker, ib, second_breakout_price, seconds_left):
 
         time.sleep(seconds_left)
         resistance_broke_two = False
 
-        ticker_contract = Stock(ticker, 'SMART', 'USD')
-
-        market_data = pd.DataFrame(
-            ib.reqHistoricalData(
-                ticker_contract,
-                endDateTime='',
-                durationStr='180 S',
-                barSizeSetting='1 min',
-                whatToShow="TRADES",
-                formatDate=1,
-                useRTH=True
-            ))
-
-        highest_price = market_data['high'].max()
-
-        second_breakout_price = highest_price * 1.005
-
-        time.sleep(1)
+        second_breakout_price = second_breakout_price * 1.005
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
@@ -92,16 +75,33 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() >= breakout_area:
-            resistance_broke_one = True
-            print("\nResistance One Broke at $" + str(round(ticker_close.marketPrice(), 2)) + " for " + ticker + "!")
+        if ticker_close.marketPrice() <= breakout_area:
 
             seconds_left = self.seconds_until_end_of_minute()
 
-            return ticker, resistance_broke_one, seconds_left
+            time.sleep(seconds_left)
+
+            market_data = pd.DataFrame(
+                ib.reqHistoricalData(
+                    ticker_contract,
+                    endDateTime='',
+                    durationStr='300 S',
+                    barSizeSetting='1 min',
+                    whatToShow="TRADES",
+                    formatDate=1,
+                    useRTH=True
+                ))
+
+            highest_price = market_data['high'].max()
+
+            resistance_broke_one = True
+
+            print("\nResistance One Broke at $" + str(round(ticker_close.marketPrice(), 2)) + " for " + ticker + "!")
+
+            return ticker, highest_price, resistance_broke_one, seconds_left
 
         else:
-            return ticker, resistance_broke_one, 0
+            return ticker, 0, resistance_broke_one, 0
 
     def buy_stock(self, ticker, ib):
 
