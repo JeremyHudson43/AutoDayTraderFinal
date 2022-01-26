@@ -41,21 +41,18 @@ def get_percent(first, second):
         percent = first / second * 100
     return percent
 
-def buy_stock(ticker, ib):
+def buy_stock(ticker, ib, limit_price):
 
    ticker_contract = Stock(ticker, 'SMART', 'USD')
-   [ticker_close] = ib.reqTickers(ticker_contract)
 
    acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
    percent_of_acct_to_trade = 0.03
 
-   current_price = ticker_close.marketPrice()
-
-   qty = (acc_vals // current_price) * percent_of_acct_to_trade
+   qty = (acc_vals // limit_price) * percent_of_acct_to_trade
    qty = floor(qty)
 
-   buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=current_price)
+   buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=limit_price)
    buy_order.outsideRth = True
 
    ib.placeOrder(ticker_contract, buy_order)
@@ -85,7 +82,6 @@ def get_PM_gappers():
 
         tagValues = [
             TagValue("changePercAbove", "5"),
-            TagValue('priceAbove', 1),
             TagValue('priceBelow', 25),
         ]
 
@@ -137,7 +133,7 @@ def get_PM_gappers():
                     stock_float = value_to_float(finviz_stock['Shs Float'])
                     stock_sector = finviz_stock['Sector']
 
-                    if stock_float < 500000000000:
+                    if stock_float < 50000000:
 
                         change = 100 - get_percent(float(finviz_price), price)
                         change_perc = round(change, 2)
@@ -156,7 +152,7 @@ def get_PM_gappers():
 
                         volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 25:
+                        if 1 <= change_perc <= 5:
 
                             print('Ticker', security.symbol)
                             print('Current Price', price)
@@ -190,7 +186,7 @@ def get_PM_gappers():
 
                             file_to_modify.close()
 
-                            buy_stock(stock, ib)
+                            buy_stock(stock, ib, price)
 
                             sys.exit(0)
 
