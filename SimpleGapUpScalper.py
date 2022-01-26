@@ -92,18 +92,16 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() <= breakout_area:
+        if ticker_close.marketPrice() >= breakout_area:
             resistance_broke_one = True
             print("\nResistance One Broke at $" + str(round(ticker_close.marketPrice(), 2)) + " for " + ticker + "!")
 
             seconds_left = self.seconds_until_end_of_minute()
 
-            resistance = ticker_close.marketPrice()
-
-            return ticker, resistance, resistance_broke_one, seconds_left
+            return ticker, resistance_broke_one, seconds_left
 
         else:
-            return ticker, 0, resistance_broke_one, 0
+            return ticker, resistance_broke_one, 0
 
     def buy_stock(self, ticker, ib):
 

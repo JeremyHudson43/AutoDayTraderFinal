@@ -97,14 +97,13 @@ if __name__ == "__main__":
                 print("Ticker", ticker)
                 print("\nPremarket High $", premarket_high)
 
-                ticker, resistance_price, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
+                ticker, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
 
                 if resistance_broke_one:
 
                     tickers_that_had_first_breakout.append(ticker)
-                    prices_where_ticker_first_brokeout.append(resistance_price)
 
-                    if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
+                    if len(tickers_that_had_first_breakout) > 0:
 
                         for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
                             ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, seconds_left)
