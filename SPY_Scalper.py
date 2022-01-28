@@ -43,32 +43,51 @@ low_value = min(premarket_data['low'].to_list())
 ib.disconnect()
 
 
-def set_trailing_stop(stock, time_until_market_close, qty):
+def set_trailing_stop(stock, time_until_market_close):
 
     ib.disconnect()
 
     ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
-    time.sleep(10)
+    stock = Stock(stock, 'NYSE', 'USD')
 
-    stock = Stock(stock, 'SMART', 'USD')
+    qty_greater_than_zero = False
 
     print('Bought ' + stock.symbol + "! " + 'Sleeping until 15 minutes before market close')
 
-    sell_order = Order(orderId=random.randint(301, 600), action='Sell', orderType='TRAIL',
-                       trailingPercent=1, totalQuantity=qty)
+    while not qty_greater_than_zero:
 
-    ib.placeOrder(stock, sell_order)
+        ib.sleep(1)
 
-    time.sleep(time_until_market_close - 600)
+        try:
 
-    ib.reqGlobalCancel()
+            print('Checking for position...')
 
-    qty_owned = ib.positions()[0].position
+            qty_owned = [x.position for x in ib.positions() if x.contract.symbol == stock.symbol][0]
 
-    sell_stock(ib, qty_owned, stock.symbol)
+            if qty_owned > 0:
 
-    ib.disconnect()
+                print(qty_owned)
+
+                sell_order = Order(orderId=random.randint(301, 600), action='Sell', orderType='TRAIL',
+                                   trailingPercent=1, totalQuantity=qty_owned)
+
+                ib.placeOrder(stock, sell_order)
+
+                print('Trailing Stop Set!')
+
+                qty_greater_than_zero = True
+
+                time.sleep(time_until_market_close - 600)
+
+                ib.reqGlobalCancel()
+
+                sell_stock(ib, qty_owned, stock.symbol)
+
+                ib.disconnect()
+
+        except Exception as err:
+            print(err)
 
 
 def sell_stock(ib, qty, ticker):
@@ -77,7 +96,7 @@ def sell_stock(ib, qty, ticker):
     ib.connect('127.0.0.1', 7497, clientId=random.randint(900, 1200))
 
     if qty > 0:
-        ticker_contract = Stock(ticker, 'SMART', 'USD')
+        ticker_contract = Stock(ticker, 'NYSE', 'USD')
 
         order = Order(orderId=27, action='Sell', orderType='MKT', totalQuantity=qty)
 
@@ -115,7 +134,7 @@ def check_time():
 
 
 def driver_func():
-    ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
+    ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300000))
 
     purchased = False
 
@@ -150,21 +169,18 @@ def driver_func():
                 acc_vals = float(
                     [v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-                percent_of_acct_to_trade = 0.5
+                percent_of_acct_to_trade = 0.005
 
                 qty = (acc_vals // Current_UPRO_Value) * percent_of_acct_to_trade
                 qty = floor(qty)
 
-                buy = Order(orderId=random.randint(0, 300), action='Buy',
+                buy = Order(orderId=random.randint(0, 300000), action='Buy',
                             orderType='LIMIT', lmtPrice=Current_UPRO_Value,
                             totalQuantity=qty)
 
-                buy_order = ib.placeOrder(UPRO, buy)
+                ib.placeOrder(UPRO, buy)
 
-                while not buy_order.isDone():
-                    time.sleep(1)
-
-                set_trailing_stop('UPRO', time_until_market_close, qty)
+                set_trailing_stop('UPRO', time_until_market_close)
 
             elif Current_SPY_Value < low_value and purchased == False:
 
@@ -177,21 +193,18 @@ def driver_func():
                 acc_vals = float(
                     [v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-                percent_of_acct_to_trade = 0.5
+                percent_of_acct_to_trade = 0.005
 
                 qty = (acc_vals // Current_SPXU_Value) * percent_of_acct_to_trade
                 qty = floor(qty)
 
-                buy = Order(orderId=random.randint(0, 300), action='Buy', orderType='LIMIT',
+                buy = Order(orderId=random.randint(0, 300000), action='Buy', orderType='LIMIT',
                             lmtPrice=Current_SPXU_Value,
                             totalQuantity=qty)
 
-                buy_order = ib.placeOrder(SPXU, buy)
+                ib.placeOrder(SPXU, buy)
 
-                while not buy_order.isDone():
-                    time.sleep(1)
-
-                set_trailing_stop('SPXU', time_until_market_close, qty)
+                set_trailing_stop('SPXU', time_until_market_close)
 
         except Exception as err:
             print(err)
