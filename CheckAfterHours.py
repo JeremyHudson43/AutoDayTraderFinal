@@ -173,7 +173,7 @@ def get_pm_gappers():
 
                         title, time_elapsed = get_news(stock, current_time)
 
-                        if time_elapsed < 1200:
+                        if 0 < time_elapsed < 1200:
 
                             print(title)
 
