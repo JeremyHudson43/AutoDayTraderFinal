@@ -43,6 +43,24 @@ def get_percent(first, second):
     return percent
 
 
+def get_news(stock, current_time):
+
+    ticker = yf.Ticker(stock)
+
+    title = ticker.news[0]['title']
+
+    if len(title) > 0:
+
+        time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
+        news_datetime = time_of_news.replace(microsecond=0)
+
+        time_elapsed = (current_time - news_datetime).total_seconds()
+
+        return title, time_elapsed
+
+    return '', 0
+
+
 def buy_stock(ticker, ib, limit_price):
 
    ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -111,87 +129,90 @@ def get_pm_gappers():
         for stock in final_symbols[:5]:
 
             print(stock)
-
             try:
+                # title, time_elapsed = get_news(stock, current_time)
 
-                ticker = yf.Ticker(stock)
+                # if time_elapsed < 900:
 
-                title = ticker.news[0]['title']
+                security = Stock(stock, 'SMART', 'USD')
+                [ticker_close] = ib.reqTickers(security)
+                price = ticker_close.marketPrice()
 
-                time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
-                news_datetime = time_of_news.replace(microsecond=0)
+                finviz_stock = finviz.get_stock(stock)
+                finviz_price = finviz_stock['Price']
 
-                if 300 < (current_time - news_datetime).total_seconds() < 9000:
+                stock_float = value_to_float(finviz_stock['Shs Float'])
+                stock_sector = finviz_stock['Sector']
 
-                    print(title)
-                    print(news_datetime)
+                if stock_float < 10000000 and float(finviz_price) < 10:
 
-                    security = Stock(stock, 'SMART', 'USD')
-                    [ticker_close] = ib.reqTickers(security)
-                    price = ticker_close.marketPrice()
+                    # print(title)
+                    # print(news_datetime)
 
-                    finviz_stock = finviz.get_stock(stock)
-                    finviz_price = finviz_stock['Price']
+                    change = 100 - get_percent(float(finviz_price), price)
+                    change_perc = round(change, 2)
 
-                    stock_float = value_to_float(finviz_stock['Shs Float'])
-                    stock_sector = finviz_stock['Sector']
+                    AH_open = "4:00:00 PM"
 
-                    if stock_float < 50000000:
+                    AH_open = dt.datetime.strptime(AH_open, '%I:%M:%S %p').time()
+                    AH_open = dt.datetime.combine(date, AH_open)
 
-                        change = 100 - get_percent(float(finviz_price), price)
-                        change_perc = round(change, 2)
+                    diff = str(int((current_time - AH_open).total_seconds()))
 
-                        # Fetching historical data when market is closed for testing purposes
-                        afterhours_data = pd.DataFrame(
-                            ib.reqHistoricalData(
-                                security,
-                                endDateTime='',
-                                durationStr= '120 S',
-                                barSizeSetting='1 min',
-                                whatToShow="TRADES",
-                                useRTH=False,
-                                formatDate=1
-                            ))
+                    # Fetching historical data when market is closed for testing purposes
+                    afterhours_data = pd.DataFrame(
+                        ib.reqHistoricalData(
+                            security,
+                            endDateTime='',
+                            durationStr=diff + ' S',
+                            barSizeSetting='1 min',
+                            whatToShow="TRADES",
+                            useRTH=False,
+                            formatDate=1
+                        ))
 
-                        volume = sum(afterhours_data['volume'].tolist()) * 100
+                    volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 1 <= change_perc <= 5:
+                    print("Volume", volume)
+                    print("Change", change_perc)
 
-                            print('Ticker', security.symbol)
-                            print('Current Price', price)
-                            print('Close Price', finviz_price)
-                            print("Shares Float", stock_float)
-                            print("120 second volume", volume)
-                            print("Stock Sector", stock_sector)
-                            print('Time of access is', current_time)
-                            print('Change Perc ', str(change_perc) + "%")
-                            print('Time of News', news_datetime)
-                            print('Title:', title)
-                            print('')
+                    if 10 <= change_perc <= 40 and 50000 < volume < 1000000:
 
-                            today = dt.datetime.today().strftime('%Y-%m-%d')
-                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
+                        print('Ticker', security.symbol)
+                        print('Current Price', price)
+                        print('Close Price', finviz_price)
+                        print("Shares Float", stock_float)
+                        print("120 second volume", volume)
+                        print("Stock Sector", stock_sector)
+                        print('Time of access is', current_time)
+                        print('Change Perc ', str(change_perc) + "%")
+                        # print('Time of News', news_datetime)
+                        # print('Title:', title)
+                        print('')
 
-                            file_to_modify = open(filepath, "a+")
+                        today = dt.datetime.today().strftime('%Y-%m-%d')
+                        filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
 
-                            file_to_modify.write('\n')
-                            file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                            file_to_modify.write('Current Price: ' + str(price) + '\n')
-                            file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
-                            file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                            file_to_modify.write('120 second volume: ' + str(volume) + '\n')
-                            file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                            file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
-                            file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
-                            file_to_modify.write('Title: ' + title + '\n')
-                            file_to_modify.write('\n')
+                        file_to_modify = open(filepath, "a+")
 
-                            file_to_modify.close()
+                        file_to_modify.write('\n')
+                        file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                        file_to_modify.write('Current Price: ' + str(price) + '\n')
+                        file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
+                        file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                        file_to_modify.write('120 second volume: ' + str(volume) + '\n')
+                        file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                        file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                        file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
+                        # file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
+                        # file_to_modify.write('Title: ' + title + '\n')
+                        file_to_modify.write('\n')
 
-                            buy_stock(stock, ib, price)
+                        file_to_modify.close()
 
-                            sys.exit(0)
+                        buy_stock(stock, ib, price)
+
+                        sys.exit(0)
 
                 time.sleep(30)
 
