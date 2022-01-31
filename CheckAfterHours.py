@@ -145,35 +145,28 @@ def get_pm_gappers():
                     change = 100 - get_percent(float(finviz_price), price)
                     change_perc = round(change, 2)
 
-                    AH_open = "4:00:00 PM"
-
-                    AH_open = dt.datetime.strptime(AH_open, '%I:%M:%S %p').time()
-                    AH_open = dt.datetime.combine(date, AH_open)
-
-                    diff = str(int((current_time - AH_open).total_seconds()))
-
-                    # Fetching historical data when market is closed for testing purposes
-                    afterhours_data = pd.DataFrame(
-                        ib.reqHistoricalData(
-                            security,
-                            endDateTime='',
-                            durationStr=diff + ' S',
-                            barSizeSetting='1 min',
-                            whatToShow="TRADES",
-                            useRTH=False,
-                            formatDate=1
-                        ))
-
-                    volume = sum(afterhours_data['volume'].tolist()) * 100
-
-                    print("Volume", volume)
-                    print("Change", change_perc)
-
-                    if 10 <= change_perc <= 40 and 50000 < volume < 1000000:
+                    if 10 <= change_perc <= 40:
 
                         title, time_elapsed = get_news(stock, current_time)
 
-                        if 0 < time_elapsed < 1200:
+                        # Fetching historical data when market is closed for testing purposes
+                        afterhours_data = pd.DataFrame(
+                            ib.reqHistoricalData(
+                                security,
+                                endDateTime='',
+                                durationStr=time_elapsed + ' S',
+                                barSizeSetting='1 min',
+                                whatToShow="TRADES",
+                                useRTH=False,
+                                formatDate=1
+                            ))
+
+                        volume = sum(afterhours_data['volume'].tolist()) * 100
+
+                        print("Volume", volume)
+                        print("Change", change_perc)
+
+                        if 0 < time_elapsed < 1200 and volume > 50000:
 
                             print(title)
 
