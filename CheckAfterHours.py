@@ -125,6 +125,8 @@ def get_pm_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in final_symbols[:5]:
 
+            print(stock)
+
             current_time = dt.datetime.now().replace(microsecond=0).time()
             current_time = dt.datetime.combine(date, current_time)
 
@@ -205,8 +207,6 @@ def get_pm_gappers():
                             buy_stock(stock, ib, price)
 
                             sys.exit(0)
-
-                time.sleep(30)
 
             except Exception as err:
                 print(traceback.format_exc())
