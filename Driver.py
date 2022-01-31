@@ -51,7 +51,7 @@ def generate_gapper_CSV():
 
     today = datetime.today().strftime('%Y-%m-%d')
 
-    filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\gapper_records\\gappers_' + today + '.csv'
+    filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\gapper_records\\gappers_' + today + '.csv'
 
     df = get_gappers_class.get_gappers()
     df.to_csv(filepath)
@@ -111,7 +111,6 @@ if __name__ == "__main__":
 
                         for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
                             ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance, seconds_left)
-
                             if resistance_broke_two:
                                 purchased, qty, ticker = scalper.buy_stock(ticker, ib)
 

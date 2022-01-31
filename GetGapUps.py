@@ -79,6 +79,8 @@ class GetGapper_Driver():
                 finviz_stock = finviz.get_stock(stock)
 
                 stock_float = self.value_to_float(finviz_stock['Shs Float'])
+                stock_shares_outstanding = self.value_to_float(finviz_stock['Shs Outstand'])
+
                 stock_sector = finviz_stock['Sector']
 
                 # Fetching historical data when market is closed for testing purposes
@@ -96,7 +98,7 @@ class GetGapper_Driver():
                 volume = sum(premarket_data['volume'].tolist()) * 100
                 ratio = self.get_percent(volume, stock_float)
 
-                if ratio > 1 and stock_float < 500000000000:
+                if ratio > 1 and stock_float < 50000000 or stock_shares_outstanding < 50000000 and ratio > 1:
 
                     print('Ticker', security.symbol)
                     print('Price', price)

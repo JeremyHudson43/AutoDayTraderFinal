@@ -53,7 +53,7 @@ def set_trailing_stop(stock, time_until_market_close):
 
     qty_greater_than_zero = False
 
-    print('Bought ' + stock.symbol + "! " + 'Sleeping until 15 minutes before market close')
+    print('\nBought ' + stock.symbol + "! " + 'Sleeping until 15 minutes before market close')
 
     while not qty_greater_than_zero:
 
@@ -61,7 +61,7 @@ def set_trailing_stop(stock, time_until_market_close):
 
         try:
 
-            print('Checking for position...')
+            print('\nChecking for position...')
 
             qty_owned = [x.position for x in ib.positions() if x.contract.symbol == stock.symbol][0]
 
@@ -74,7 +74,7 @@ def set_trailing_stop(stock, time_until_market_close):
 
                 ib.placeOrder(stock, sell_order)
 
-                print('Trailing Stop Set!')
+                print('\nTrailing Stop Set!')
 
                 qty_greater_than_zero = True
 
@@ -83,8 +83,6 @@ def set_trailing_stop(stock, time_until_market_close):
                 ib.reqGlobalCancel()
 
                 sell_stock(ib, qty_owned, stock.symbol)
-
-                ib.disconnect()
 
         except Exception as err:
             print(err)
@@ -175,8 +173,7 @@ def driver_func():
                 qty = floor(qty)
 
                 buy = Order(orderId=random.randint(0, 300000), action='Buy',
-                            orderType='LIMIT', lmtPrice=Current_UPRO_Value,
-                            totalQuantity=qty)
+                            orderType='MKT', totalQuantity=qty)
 
                 ib.placeOrder(UPRO, buy)
 
@@ -198,9 +195,8 @@ def driver_func():
                 qty = (acc_vals // Current_SPXU_Value) * percent_of_acct_to_trade
                 qty = floor(qty)
 
-                buy = Order(orderId=random.randint(0, 300000), action='Buy', orderType='LIMIT',
-                            lmtPrice=Current_SPXU_Value,
-                            totalQuantity=qty)
+                buy = Order(orderId=random.randint(0, 300000), action='Buy',
+                            orderType='MKT', totalQuantity=qty)
 
                 ib.placeOrder(SPXU, buy)
 

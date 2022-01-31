@@ -34,12 +34,14 @@ def value_to_float(x):
 
     return 0.0
 
+
 def get_percent(first, second):
     if first == 0 or second == 0:
         return 0
     else:
         percent = first / second * 100
     return percent
+
 
 def buy_stock(ticker, ib, limit_price):
 
@@ -63,7 +65,7 @@ def buy_stock(ticker, ib, limit_price):
    ib.placeOrder(ticker_contract, sell_order)
 
 
-def get_PM_gappers():
+def get_pm_gappers():
 
     ib = IB()
     ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
@@ -119,9 +121,10 @@ def get_PM_gappers():
                 time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
                 news_datetime = time_of_news.replace(microsecond=0)
 
-                if 300 < (current_time - news_datetime).total_seconds() < 900:
+                if 300 < (current_time - news_datetime).total_seconds() < 9000:
 
                     print(title)
+                    print(news_datetime)
 
                     security = Stock(stock, 'SMART', 'USD')
                     [ticker_close] = ib.reqTickers(security)
@@ -167,7 +170,7 @@ def get_PM_gappers():
                             print('')
 
                             today = dt.datetime.today().strftime('%Y-%m-%d')
-                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\news\\' + today + '_news.txt'
+                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
 
                             file_to_modify = open(filepath, "a+")
 
@@ -198,7 +201,6 @@ def get_PM_gappers():
     ib.disconnect()
 
 
-
 date = dt.datetime.now().replace(microsecond=0).date()
 
 current_time = dt.datetime.now().replace(microsecond=0).time()
@@ -215,4 +217,4 @@ diff = abs((PM_open - current_time).total_seconds())
 
 # time.sleep(diff)
 
-# get_PM_gappers()
+get_pm_gappers()

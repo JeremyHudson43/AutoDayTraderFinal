@@ -42,21 +42,35 @@ class GapUpScalper_Driver():
         time.sleep(seconds_left)
         resistance_broke_two = False
 
-        second_breakout_price = second_breakout_price * 1.005
-
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
 
         print('\nChecking for ' + ticker + '\'s second breakout at: $' + str(round(second_breakout_price, 2)) + "...")
         print(ticker + "\'s current price: $" + str(round(ticker_close.marketPrice(), 2)))
 
-        if ticker_close.marketPrice() <= second_breakout_price:
-            resistance_broke_two = True
-            print("\nResistance Two Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
+        if ticker_close.marketPrice() >= second_breakout_price:
 
-            breakout_price = ticker_close.marketPrice()
+            time.sleep(self.seconds_until_end_of_minute() + 5)
 
-            return ticker, breakout_price, resistance_broke_two
+            market_data = pd.DataFrame(
+                ib.reqHistoricalData(
+                    ticker_contract,
+                    endDateTime='',
+                    durationStr='60 S',
+                    barSizeSetting='1 min',
+                    whatToShow="TRADES",
+                    formatDate=1,
+                    useRTH=True
+                ))
+
+            if market_data['Close'].max() >= second_breakout_price:
+
+                resistance_broke_two = True
+                print("\nResistance Two Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
+
+                breakout_price = ticker_close.marketPrice()
+
+                return ticker, breakout_price, resistance_broke_two
         else:
             return ticker, 0, resistance_broke_two
 
@@ -65,7 +79,7 @@ class GapUpScalper_Driver():
 
         [ticker_close] = ib.reqTickers(ticker_contract)
 
-        breakout_area = round(breakout_area * 1.02, 2)
+        breakout_area = round(breakout_area * 1.005, 2)
 
         limit_market_difference = 100 - self.get_percent(ticker_close.marketPrice(), breakout_area)
 
@@ -75,7 +89,7 @@ class GapUpScalper_Driver():
 
         resistance_broke_one = False
 
-        if ticker_close.marketPrice() <= breakout_area:
+        if ticker_close.marketPrice() >= breakout_area:
 
             seconds_left = self.seconds_until_end_of_minute()
 
@@ -113,14 +127,16 @@ class GapUpScalper_Driver():
 
        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-       percent_of_acct_to_trade = 0.2
+       percent_of_acct_to_trade = 0.002
 
        qty = (acc_vals // current_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       limit_price = round(current_price, 2)
-       take_profit = round(current_price * 1.04, 2)
-       stop_loss_price = round(current_price * 0.98, 2)
+       limit_price = float(round(current_price * 1.005, 2))
+       take_profit = float(round(current_price * 1.10, 2))
+       stop_loss_price = float(round(current_price * 0.98, 2))
+
+       print(limit_price, take_profit, stop_loss_price)
 
        buy_order = ib.bracketOrder(
            'BUY',
