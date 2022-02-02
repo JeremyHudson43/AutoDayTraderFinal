@@ -72,7 +72,7 @@ class GapUpScalper_Driver():
 
                 return ticker, breakout_price, resistance_broke_two
         else:
-            return ticker, 0, resistance_broke_two
+            return ticker, 0, False
 
     def check_first_breakout(self, ticker, breakout_area, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
