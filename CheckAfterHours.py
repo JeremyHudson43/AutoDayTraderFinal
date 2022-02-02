@@ -7,7 +7,6 @@ import yfinance as yf
 import finviz
 import time
 import pandas as pd
-from datetime import timedelta
 from math import floor
 import sys
 
@@ -54,33 +53,57 @@ def get_news(stock, current_time):
         time_of_news = dt.datetime.fromtimestamp(ticker.news[0]['providerPublishTime'])
         news_datetime = time_of_news.replace(microsecond=0)
 
-        time_elapsed = (current_time - news_datetime).total_seconds()
+        time_elapsed = int((current_time - news_datetime).total_seconds())
 
         return title, time_elapsed
 
-    return '', 0
+    else:
+        return '', 0
 
 
-def buy_stock(ticker, ib, limit_price):
+def buy_stock(ticker, ib):
+    ticker_contract = Stock(ticker, 'SMART', 'USD')
 
-   ticker_contract = Stock(ticker, 'SMART', 'USD')
+    [ticker_close] = ib.reqTickers(ticker_contract)
 
-   acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+    current_price = ticker_close.marketPrice()
 
-   percent_of_acct_to_trade = 0.03
+    acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-   qty = (acc_vals // limit_price) * percent_of_acct_to_trade
-   qty = floor(qty)
+    percent_of_acct_to_trade = 0.03
 
-   buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=limit_price)
-   buy_order.outsideRth = True
+    qty = (acc_vals // current_price) * percent_of_acct_to_trade
+    qty = floor(qty)
 
-   ib.placeOrder(ticker_contract, buy_order)
+    buy_order = LimitOrder(orderId=5, action='BUY', totalQuantity=qty, lmtPrice=current_price)
+    buy_order.outsideRth = True
 
-   time.sleep(30)
+    ib.placeOrder(ticker_contract, buy_order)
 
-   sell_order = Order(orderId=6, orderType = 'MKT', action='SELL', totalQuantity=qty)
-   ib.placeOrder(ticker_contract, sell_order)
+    qty_greater_than_zero = False
+
+    while not qty_greater_than_zero:
+
+        ib.sleep(1)
+
+        try:
+
+            print('\nChecking for position...')
+
+            qty_owned = [x.position for x in ib.positions() if x.contract.symbol == ticker][0]
+
+            if qty_owned > 0:
+
+                qty_greater_than_zero = True
+                print(qty_owned)
+
+                sell_order = LimitOrder(orderId=9, action='SELL', totalQuantity=qty, lmtPrice=current_price * 1.05)
+                sell_order.outsideRth = True
+
+                ib.placeOrder(ticker_contract, sell_order)
+
+        except Exception as err:
+            print(err)
 
 
 def get_pm_gappers():
@@ -98,7 +121,6 @@ def get_pm_gappers():
             scanCode='TOP_TRADE_RATE')
 
         tagValues = [
-            TagValue("changePercAbove", "5"),
             TagValue('priceBelow', 25),
         ]
 
@@ -125,8 +147,6 @@ def get_pm_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in final_symbols[:5]:
 
-            print(stock)
-
             current_time = dt.datetime.now().replace(microsecond=0).time()
             current_time = dt.datetime.combine(date, current_time)
 
@@ -140,94 +160,81 @@ def get_pm_gappers():
                 finviz_price = finviz_stock['Price']
 
                 stock_float = value_to_float(finviz_stock['Shs Float'])
+                shares_outstanding = value_to_float(finviz_stock['Shs Outstand'])
+
                 stock_sector = finviz_stock['Sector']
 
-                if stock_float < 10000000 and float(finviz_price) < 10:
+                if stock_float < 50000000 and float(finviz_price) < 20 or \
+                        shares_outstanding < 50000000 and float(finviz_price) < 20:
 
                     change = 100 - get_percent(float(finviz_price), price)
                     change_perc = round(change, 2)
 
-                    if 10 <= change_perc <= 40:
+                    if 1 <= change_perc <= 5:
 
                         title, time_elapsed = get_news(stock, current_time)
 
-                        # Fetching historical data when market is closed for testing purposes
-                        afterhours_data = pd.DataFrame(
-                            ib.reqHistoricalData(
-                                security,
-                                endDateTime='',
-                                durationStr=time_elapsed + ' S',
-                                barSizeSetting='1 min',
-                                whatToShow="TRADES",
-                                useRTH=False,
-                                formatDate=1
-                            ))
+                        if 0 < time_elapsed < 300:
 
-                        volume = sum(afterhours_data['volume'].tolist()) * 100
+                            # Fetching historical data when market is closed for testing purposes
+                            afterhours_data = pd.DataFrame(
+                                ib.reqHistoricalData(
+                                    security,
+                                    endDateTime='',
+                                    durationStr= str(time_elapsed) + ' S',
+                                    barSizeSetting='1 min',
+                                    whatToShow="TRADES",
+                                    useRTH=False,
+                                    formatDate=1
+                                ))
 
-                        print("Volume", volume)
-                        print("Change", change_perc)
+                            volume = sum(afterhours_data['volume'].tolist()) * 100
 
-                        if 0 < time_elapsed < 1200 and volume > 50000:
+                            if volume > 2000:
 
-                            print(title)
+                                print('Ticker:', security.symbol)
+                                print('Current Price:', price)
+                                print('Close Price:', finviz_price)
+                                print("Shares Float:", stock_float)
+                                print("Volume since news:", volume)
+                                print("Stock Sector:", stock_sector)
+                                print('Time of access is:', current_time)
+                                print('Change Perc: ', str(change_perc) + "%")
+                                print('Time Elapsed:', str(time_elapsed // 60) + " minutes")
+                                print('Title:', title)
+                                print('')
 
-                            print('Ticker', security.symbol)
-                            print('Current Price', price)
-                            print('Close Price', finviz_price)
-                            print("Shares Float", stock_float)
-                            print("120 second volume", volume)
-                            print("Stock Sector", stock_sector)
-                            print('Time of access is', current_time)
-                            print('Change Perc ', str(change_perc) + "%")
-                            # print('Time of News', news_datetime)
-                            # print('Title:', title)
-                            print('')
+                                today = dt.datetime.today().strftime('%Y-%m-%d')
+                                filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
 
-                            today = dt.datetime.today().strftime('%Y-%m-%d')
-                            filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
+                                file_to_modify = open(filepath, "a+")
 
-                            file_to_modify = open(filepath, "a+")
+                                file_to_modify.write('\n')
+                                file_to_modify.write('Ticker: ' + security.symbol + '\n')
+                                file_to_modify.write('Current Price: ' + str(price) + '\n')
+                                file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
+                                file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
+                                file_to_modify.write('Volume since news: ' + str(volume) + '\n')
+                                file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
+                                file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
+                                file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
+                                file_to_modify.write('Time Elapsed: ' + str(time_elapsed // 60) + ' minutes' + '\n')
+                                file_to_modify.write('Title: ' + title + '\n')
 
-                            file_to_modify.write('\n')
-                            file_to_modify.write('Ticker: ' + security.symbol + '\n')
-                            file_to_modify.write('Current Price: ' + str(price) + '\n')
-                            file_to_modify.write('Close Price: ' + str(finviz_price) + '\n')
-                            file_to_modify.write('Shares Float: ' + str(stock_float) + '\n')
-                            file_to_modify.write('120 second volume: ' + str(volume) + '\n')
-                            file_to_modify.write('Stock Sector: ' + str(stock_sector) + '\n')
-                            file_to_modify.write('Time of access is: ' + str(current_time) + '\n')
-                            file_to_modify.write('Change Perc ' + str(change_perc) + "%\n")
-                            # file_to_modify.write('Time of News: ' + str(news_datetime) + '\n')
-                            # file_to_modify.write('Title: ' + title + '\n')
-                            file_to_modify.write('\n')
+                                file_to_modify.write('\n')
 
-                            file_to_modify.close()
+                                file_to_modify.close()
 
-                            buy_stock(stock, ib, price)
+                                buy_stock(stock, ib)
 
-                            sys.exit(0)
+                                sys.exit(0)
+
+                time.sleep(5)
 
             except Exception as err:
                 print(traceback.format_exc())
 
     ib.disconnect()
 
-
-date = dt.datetime.now().replace(microsecond=0).date()
-
-current_time = dt.datetime.now().replace(microsecond=0).time()
-current_time = dt.datetime.combine(date, current_time)
-
-PM_open = "4:00:00 AM"
-
-PM_open = dt.datetime.strptime(PM_open, '%I:%M:%S %p').time()
-PM_open = dt.datetime.combine(date, PM_open) + timedelta(days=1)
-
-diff = abs((PM_open - current_time).total_seconds())
-
-# print("Sleeping for " + str(diff) + " seconds")
-
-# time.sleep(diff)
 
 get_pm_gappers()
