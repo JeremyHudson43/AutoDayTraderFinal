@@ -110,9 +110,9 @@ if __name__ == "__main__":
                 if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
 
                     for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
-                        ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance)
+                        ticker, second_breakout_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance)
                         if resistance_broke_two:
-                            purchased, qty, ticker = scalper.buy_stock(ticker, ib)
+                            purchased, qty, ticker = scalper.buy_stock(ticker, ib, second_breakout_price)
 
             elif purchased:
                 print('\nPurchased! Sleeping until 5 minutes before market close')

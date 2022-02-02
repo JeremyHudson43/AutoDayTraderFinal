@@ -48,7 +48,9 @@ class GapUpScalper_Driver():
         print('\nChecking for ' + ticker + '\'s second breakout at: $' + str(round(second_breakout_price, 2)) + "...")
         print(ticker + "\'s current price: $" + str(round(ticker_close.marketPrice(), 2)))
 
-        if ticker_close.marketPrice() >= second_breakout_price:
+        resistance_broke_two = False
+
+        if ticker_close.marketPrice() > second_breakout_price:
 
             time.sleep(self.seconds_until_end_of_minute() + 5)
 
@@ -63,7 +65,7 @@ class GapUpScalper_Driver():
                     useRTH=True
                 ))
 
-            if market_data['Close'].max() >= second_breakout_price:
+            if market_data['close'].max() > second_breakout_price:
 
                 resistance_broke_two = True
                 print("\nResistance Two Broke at $" + str(round(ticker_close.marketPrice(), 2)) + "!")
@@ -72,7 +74,7 @@ class GapUpScalper_Driver():
 
                 return ticker, breakout_price, resistance_broke_two
         else:
-            return ticker, 0, False
+            return ticker, 0, resistance_broke_two
 
     def check_first_breakout(self, ticker, breakout_area, ib):
         ticker_contract = Stock(ticker, 'SMART', 'USD')
@@ -117,26 +119,26 @@ class GapUpScalper_Driver():
         else:
             return ticker, 0, resistance_broke_one
 
-    def buy_stock(self, ticker, ib):
+    def buy_stock(self, ticker, ib, second_breakout_price):
 
        ticker_contract = Stock(ticker, 'SMART', 'USD')
 
        [ticker_close] = ib.reqTickers(ticker_contract)
 
-       current_price = ticker_close.marketPrice()
-
        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
        percent_of_acct_to_trade = 0.5
 
-       qty = (acc_vals // current_price) * percent_of_acct_to_trade
+       qty = (acc_vals // second_breakout_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       limit_price = float(round(current_price, 2))
-       take_profit = float(round(current_price * 1.10, 2))
-       stop_loss_price = float(round(current_price * 0.98, 2))
+       limit_price = float(round(second_breakout_price, 2))
+       take_profit = float(round(second_breakout_price * 1.10, 2))
+       stop_loss_price = float(round(second_breakout_price * 0.98, 2))
 
-       print(limit_price, take_profit, stop_loss_price)
+       print("\nlimit_price: " + str(limit_price))
+       print("take_profit: " + str(take_profit))
+       print("stop_loss_price: " + str(stop_loss_price))
 
        buy_order = ib.bracketOrder(
            'BUY',
@@ -149,10 +151,10 @@ class GapUpScalper_Driver():
        for o in buy_order:
            ib.placeOrder(ticker_contract, o)
 
-       pct_difference = round(self.get_percent((qty * ticker_close.marketPrice()), acc_vals), 2)
+       pct_difference = round(self.get_percent((qty * second_breakout_price, acc_vals), 2))
 
        print('\nYou bought ' + str(qty) + ' shares of ' + str(ticker) +
-             ' for a total of $' + str(round(qty * ticker_close.marketPrice())) + ' USD' +
+             ' for a total of $' + str(round(qty * second_breakout_price)) + ' USD' +
              ' which is ' + str(pct_difference) + '% of your account ')
 
        purchased = True
