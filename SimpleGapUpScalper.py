@@ -37,10 +37,10 @@ class GapUpScalper_Driver():
 
            sys.exit(0)
 
-    def check_second_breakout(self, ticker, ib, second_breakout_price, seconds_left):
+    def check_second_breakout(self, ticker, ib, second_breakout_price):
 
+        seconds_left = self.seconds_until_end_of_minute()
         time.sleep(seconds_left)
-        resistance_broke_two = False
 
         ticker_contract = Stock(ticker, 'SMART', 'USD')
         [ticker_close] = ib.reqTickers(ticker_contract)
@@ -112,10 +112,10 @@ class GapUpScalper_Driver():
 
             print("\nResistance One Broke at $" + str(round(ticker_close.marketPrice(), 2)) + " for " + ticker + "!")
 
-            return ticker, highest_price, resistance_broke_one, seconds_left
+            return ticker, highest_price, resistance_broke_one
 
         else:
-            return ticker, 0, resistance_broke_one, 0
+            return ticker, 0, resistance_broke_one
 
     def buy_stock(self, ticker, ib):
 
@@ -127,12 +127,12 @@ class GapUpScalper_Driver():
 
        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-       percent_of_acct_to_trade = 0.002
+       percent_of_acct_to_trade = 0.5
 
        qty = (acc_vals // current_price) * percent_of_acct_to_trade
        qty = floor(qty)
 
-       limit_price = float(round(current_price * 1.005, 2))
+       limit_price = float(round(current_price, 2))
        take_profit = float(round(current_price * 1.10, 2))
        stop_loss_price = float(round(current_price * 0.98, 2))
 

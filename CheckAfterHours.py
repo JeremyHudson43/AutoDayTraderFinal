@@ -70,7 +70,7 @@ def buy_stock(ticker, ib):
 
     acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
 
-    percent_of_acct_to_trade = 0.03
+    percent_of_acct_to_trade = 0.003
 
     qty = (acc_vals // current_price) * percent_of_acct_to_trade
     qty = floor(qty)

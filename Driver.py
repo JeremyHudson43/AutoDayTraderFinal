@@ -99,7 +99,7 @@ if __name__ == "__main__":
                     print("Ticker", ticker)
                     print("\nPremarket High $", premarket_high)
 
-                    ticker, highest_price, resistance_broke_one, seconds_left = scalper.check_first_breakout(ticker, premarket_high, ib)
+                    ticker, highest_price, resistance_broke_one = scalper.check_first_breakout(ticker, premarket_high, ib)
 
                 if resistance_broke_one:
 
@@ -107,12 +107,12 @@ if __name__ == "__main__":
                         tickers_that_had_first_breakout.append(ticker)
                         prices_where_ticker_first_brokeout.append(highest_price)
 
-                    if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
+                if len(tickers_that_had_first_breakout) > 0 and len(prices_where_ticker_first_brokeout) > 0:
 
-                        for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
-                            ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance, seconds_left)
-                            if resistance_broke_two:
-                                purchased, qty, ticker = scalper.buy_stock(ticker, ib)
+                    for ticker, resistance in zip(tickers_that_had_first_breakout, prices_where_ticker_first_brokeout):
+                        ticker, resistance_price, resistance_broke_two = scalper.check_second_breakout(ticker, ib, resistance)
+                        if resistance_broke_two:
+                            purchased, qty, ticker = scalper.buy_stock(ticker, ib)
 
             elif purchased:
                 print('\nPurchased! Sleeping until 5 minutes before market close')
