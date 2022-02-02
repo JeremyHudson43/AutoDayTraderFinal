@@ -92,7 +92,7 @@ def buy_stock(ticker, ib):
 
             qty_owned = [x.position for x in ib.positions() if x.contract.symbol == ticker][0]
 
-            if qty_owned > 0:
+            if qty_owned == qty:
 
                 qty_greater_than_zero = True
                 print(qty_owned)
@@ -147,6 +147,8 @@ def get_pm_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in final_symbols[:5]:
 
+            print(stock)
+
             current_time = dt.datetime.now().replace(microsecond=0).time()
             current_time = dt.datetime.combine(date, current_time)
 
@@ -174,7 +176,7 @@ def get_pm_gappers():
 
                         title, time_elapsed = get_news(stock, current_time)
 
-                        if 0 < time_elapsed < 300:
+                        if 0 < time_elapsed < 60000:
 
                             # Fetching historical data when market is closed for testing purposes
                             afterhours_data = pd.DataFrame(
