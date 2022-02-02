@@ -1,3 +1,5 @@
+import os
+
 from ib_insync.contract import Stock
 from ib_insync.ib import IB, ScannerSubscription, TagValue, LimitOrder, Order
 import random
@@ -147,8 +149,6 @@ def get_pm_gappers():
         # loop through the scanner results and get the contract details of top 20 results
         for stock in final_symbols[:5]:
 
-            print(stock)
-
             current_time = dt.datetime.now().replace(microsecond=0).time()
             current_time = dt.datetime.combine(date, current_time)
 
@@ -172,11 +172,13 @@ def get_pm_gappers():
                     change = 100 - get_percent(float(finviz_price), price)
                     change_perc = round(change, 2)
 
+                    print(stock, change_perc)
+
                     if 1 <= change_perc <= 5:
 
                         title, time_elapsed = get_news(stock, current_time)
 
-                        if 0 < time_elapsed < 60000:
+                        if 0 < time_elapsed < 900:
 
                             # Fetching historical data when market is closed for testing purposes
                             afterhours_data = pd.DataFrame(
@@ -207,7 +209,13 @@ def get_pm_gappers():
                                 print('')
 
                                 today = dt.datetime.today().strftime('%Y-%m-%d')
-                                filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '_news.txt'
+
+                                parent_dir = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today
+
+                                if not os.path.exists(parent_dir):
+                                    os.mkdir('C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today)
+
+                                filepath = 'C:\\Users\\Frank Einstein\\PycharmProjects\\AutoDaytrader\\Data\\news\\' + today + '\\' + stock + '.txt'
 
                                 file_to_modify = open(filepath, "a+")
 
@@ -227,14 +235,14 @@ def get_pm_gappers():
 
                                 file_to_modify.close()
 
-                                buy_stock(stock, ib)
+                                # buy_stock(stock, ib)
 
-                                sys.exit(0)
+                                # sys.exit(0)
 
                 time.sleep(5)
 
             except Exception as err:
-                print(traceback.format_exc())
+                print('')
 
     ib.disconnect()
 
