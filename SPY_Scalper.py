@@ -134,19 +134,19 @@ def place_order():
 
                 extreme_value = True
 
-                call_strike = math.floor(Current_SPY_Value)
+                call_strike = math.ceil(Current_SPY_Value)
                 call = Option(ticker, call_year + call_month + call_day, call_strike, 'C', "SMART")
 
                 contract = call
 
             elif williams_perc >= -15 and last_close < two_hundred_ema and last_close < twenty_five_ema and five_ema < ten_ema:
-                
+
                 [SPY_close] = ib.reqTickers(ticker_contract)
                 Current_SPY_Value = SPY_close.marketPrice()
 
                 extreme_value = True
 
-                put_strike = math.ceil(Current_SPY_Value)
+                put_strike = math.floor(Current_SPY_Value)
                 put = Option(ticker, put_year + put_month + put_day, put_strike, 'P', "SMART")
 
                 contract = put
