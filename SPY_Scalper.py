@@ -1,210 +1,205 @@
-import time
-from ib_insync.contract import Stock
-from ib_insync.ib import IB
-from datetime import datetime
-from ib_insync import Order
-import pandas as pd
+from ib_insync import *
 import random
+from datetime import *
+import time
+import pandas as pd
+from dateutil import parser
 import sys
-from math import floor
+import talib
+import math
 
-# Logging into Interactive Broker TWS
 ib = IB()
-
-# port for IB gateway : 4002
-# port for IB TWS : 7497
 ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
 
-# To get the current market value, first create a contract for the underlyer,
-# we are selecting Tesla for now with SMART exchanges:
-SPY = Stock('SPY', 'SMART', 'USD')
 
-# Fetching historical data when market is closed for testing purposes
-market_data = pd.DataFrame(
-    ib.reqHistoricalData(
-        SPY,
-        endDateTime='',
-        durationStr='1 D',
-        barSizeSetting='1 min',
-        whatToShow="TRADES",
-        useRTH=False,
-        formatDate=1,
-        keepUpToDate=True
-    ))
-
-start = datetime.strptime('04:00:00', '%H:%M:%S').time()
-end = datetime.strptime('09:29:59', '%H:%M:%S').time()
-
-premarket_data = market_data[market_data['date'].dt.time.between(start, end)]
-
-high_value = max(premarket_data['high'].to_list())
-low_value = min(premarket_data['low'].to_list())
-
-ib.disconnect()
-
-
-def set_trailing_stop(stock, time_until_market_close):
-
-    ib.disconnect()
-
-    ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300))
-
-    stock = Stock(stock, 'NYSE', 'USD')
-
-    qty_greater_than_zero = False
-
-    print('\nBought ' + stock.symbol + "! " + 'Sleeping until 15 minutes before market close')
-
-    while not qty_greater_than_zero:
-
-        ib.sleep(1)
-
-        try:
-
-            print('\nChecking for position...')
-
-            qty_owned = [x.position for x in ib.positions() if x.contract.symbol == stock.symbol][0]
-
-            if qty_owned > 0:
-
-                print(qty_owned)
-
-                sell_order = Order(orderId=random.randint(301, 600), action='Sell', orderType='TRAIL',
-                                   trailingPercent=1, totalQuantity=qty_owned)
-
-                ib.placeOrder(stock, sell_order)
-
-                print('\nTrailing Stop Set!')
-
-                qty_greater_than_zero = True
-
-                time.sleep(time_until_market_close - 600)
-
-                ib.reqGlobalCancel()
-
-                sell_stock(ib, qty_owned, stock.symbol)
-
-        except Exception as err:
-            print(err)
-
-
-def sell_stock(ib, qty, ticker):
-    ib.disconnect()
-
-    ib.connect('127.0.0.1', 7497, clientId=random.randint(900, 1200))
-
-    if qty > 0:
-        ticker_contract = Stock(ticker, 'NYSE', 'USD')
-
-        order = Order(orderId=27, action='Sell', orderType='MKT', totalQuantity=qty)
-
-        ib.placeOrder(ticker_contract, order)
-
-        print('\nSold ' + str(ticker) + " at the end of the day!")
-
-        time.sleep(10)
-
-        sys.exit(0)
-
-    ib.disconnect()
-
+def get_wr(high, low, close, lookback):
+    highh = high.rolling(lookback).max()
+    lowl = low.rolling(lookback).min()
+    wr = 100 * ((close - highh) / (highh - lowl))
+    return wr
 
 def check_time():
-    ## STARTING THE ALGORITHM ##
-    # Time frame: 6.30 hrs
+    # check if it is before 2:30 PM
+    if datetime.now().hour == 14 and datetime.now().minute > 30:
+        return True
+    else:
+        return False
 
-    now = datetime.now() # time object
+def sleep_until_market_open():
+    now = datetime.now()  # time object
 
-    StartTime = pd.to_datetime("9:30").tz_localize('America/New_York')
+    StartTime = pd.to_datetime("9:40").tz_localize('America/New_York')
     TimeNow = pd.to_datetime(now).tz_localize('America/New_York')
-    EndTime = pd.to_datetime("16:00").tz_localize('America/New_York')
 
-    time_until_market_close = (EndTime - TimeNow).total_seconds()
-
-    # Waiting for Market to Open
     if StartTime > TimeNow:
-        wait = (StartTime - TimeNow).total_seconds()
-        print("Waiting for Market to Open..")
-        print(f"Sleeping for {wait} seconds")
-        time.sleep(wait)
-
-    return time_until_market_close
+        time_until_market_open = (StartTime - TimeNow).total_seconds()
+        time.sleep(time_until_market_open)
 
 
-def driver_func():
-    ib.connect('127.0.0.1', 7497, clientId=random.randint(0, 300000))
+def sell_stock(ib, contract, orders):
 
-    purchased = False
+   for order in orders:
+       try:
+        ib.cancelOrder(order)
+       except Exception as e:
+           print(e)
 
-    time_until_market_close = check_time()
+   option = [v for v in ib.positions() if v.contract.secType == 'OPT' and v.contract.symbol == 'SPY'][0]
+   qty = option.position
 
-    # Run the algorithm till the daily time frame exhausts:
-    while time_until_market_close > 900:
+   if qty > 0:
 
-        time.sleep(5)
+       contract_data = ib.reqTickers(*[contract])[0]
+       lmt_price = (contract_data.bid + contract_data.ask) / 2
 
-        time_until_market_close = check_time()
+       order = Order(orderId=270, action='Sell', orderType='LMT', lmtPrice=lmt_price, totalQuantity=qty)
 
-        try:
-            print("\nLooking for an opportunity!\n")
+       ib.placeOrder(contract, order)
 
-            [SPY_close] = ib.reqTickers(SPY)
+       print('\nSold ' + str(contract.symbol) + " at the end of the day!")
 
-            Current_SPY_Value = SPY_close.marketPrice()
+       time.sleep(10)
 
-            print('SPY Premarket Low', low_value)
-            print('SPY Premarket High', high_value)
-            print('SPY Current Value', Current_SPY_Value)
+       sys.exit(0)
 
-            if Current_SPY_Value > high_value and purchased == False:
 
-                UPRO = Stock('UPRO', 'NYSE', 'USD')
+def place_order():
 
-                [UPRO_close] = ib.reqTickers(UPRO)
+    orders = []
 
-                Current_UPRO_Value = UPRO_close.marketPrice()
+    extreme_value = False
 
-                acc_vals = float(
-                    [v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+    while not extreme_value:
 
-                percent_of_acct_to_trade = 0.005
+        past_two_thirty = check_time()
 
-                qty = (acc_vals // Current_UPRO_Value) * percent_of_acct_to_trade
-                qty = floor(qty)
+        if not past_two_thirty:
 
-                buy = Order(orderId=random.randint(0, 300000), action='Buy',
-                            orderType='MKT', totalQuantity=qty)
+            ticker = 'SPY'
 
-                ib.placeOrder(UPRO, buy)
+            put_year = '2022'
+            put_month = '03'
+            put_day = '18'
 
-                set_trailing_stop('UPRO', time_until_market_close)
+            call_year = '2022'
+            call_month = '03'
+            call_day = '18'
 
-            elif Current_SPY_Value < low_value and purchased == False:
+            ticker_contract = Stock('SPY', 'SMART', 'USD')
 
-                SPXU = Stock('SPXU', 'NYSE', 'USD')
+            if not extreme_value:
+                timeToSleep = (5*60 - time.time() % (5*60))
 
-                [SPXU_close] = ib.reqTickers(SPXU)
+                print("Sleeping for " + str(timeToSleep) + " seconds")
+                time.sleep(timeToSleep)
 
-                Current_SPXU_Value = round(SPXU_close.marketPrice(), 2)
+            market_data = pd.DataFrame(
+                ib.reqHistoricalData(
+                    ticker_contract,
+                    endDateTime='',
+                    durationStr='7 D',
+                    barSizeSetting='5 mins',
+                    whatToShow="TRADES",
+                    formatDate=1,
+                    useRTH=True,
+                    timeout=0
+                ))
 
-                acc_vals = float(
-                    [v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+            two_hundred_ema = talib.EMA(market_data['close'].values, timeperiod=200)[-1]
+            twenty_five_ema = talib.EMA(market_data['close'].values, timeperiod=25)[-1]
+            five_ema = talib.EMA(market_data['close'].values, timeperiod=5)[-1]
+            ten_ema = talib.EMA(market_data['close'].values, timeperiod=10)[-1]
 
-                percent_of_acct_to_trade = 0.005
+            last_close = market_data['close'].iloc[-1]
 
-                qty = (acc_vals // Current_SPXU_Value) * percent_of_acct_to_trade
-                qty = floor(qty)
+            williams_perc = get_wr(market_data['high'], market_data['low'], market_data['close'], 2).iloc[-1]
 
-                buy = Order(orderId=random.randint(0, 300000), action='Buy',
-                            orderType='MKT', totalQuantity=qty)
+            market_data['williams_perc'] = get_wr(market_data['high'], market_data['low'], market_data['close'], 2)
 
-                ib.placeOrder(SPXU, buy)
+            market_data.to_csv('C:\\Users\\Frank Einstein\\Desktop\\results\\market_data.csv')
 
-                set_trailing_stop('SPXU', time_until_market_close)
+            print("\nLast Close: " + str(last_close) + '\n')
+            print("Williams %: " + str(williams_perc) + '\n')
+            print('200 SMA: ' + str(two_hundred_ema) + '\n')
+            print('25 EMA: ' + str(twenty_five_ema) + '\n')
+            print('10 EMA: ' + str(ten_ema) + '\n')
+            print('5 EMA: ' + str(five_ema) + '\n')
 
-        except Exception as err:
-            print(err)
+            print('- - - - - - - - - - - - - - - - - - - - \n')
 
-    ib.disconnect()
+            if williams_perc <= -85 and last_close > two_hundred_ema and last_close > twenty_five_ema and five_ema > ten_ema
 
-driver_func()
+                [SPY_close] = ib.reqTickers(ticker_contract)
+                Current_SPY_Value = SPY_close.marketPrice()
+
+                extreme_value = True
+
+                call_strike = math.floor(Current_SPY_Value)
+                call = Option(ticker, call_year + call_month + call_day, call_strike, 'C', "SMART")
+
+                contract = call
+
+            elif williams_perc >= -15 and last_close < two_hundred_ema and last_close < twenty_five_ema and five_ema < ten_ema:
+                
+                [SPY_close] = ib.reqTickers(ticker_contract)
+                Current_SPY_Value = SPY_close.marketPrice()
+
+                extreme_value = True
+
+                put_strike = math.ceil(Current_SPY_Value)
+                put = Option(ticker, put_year + put_month + put_day, put_strike, 'P', "SMART")
+
+                contract = put
+
+            else:
+                print("Waiting for extreme value...\n")
+
+        acc_vals = float([v.value for v in ib.accountValues() if v.tag == 'CashBalance' and v.currency == 'USD'][0])
+
+        ib.qualifyContracts(contract)
+        contract_data = ib.reqTickers(*[contract])[0]
+
+        bid = contract_data.bid
+        ask = contract_data.ask
+        delta = abs(contract_data.bidGreeks.delta)
+
+        mid = (bid + ask) / 2
+
+        qty = (acc_vals // mid) - 1
+
+        limit_price = mid
+        take_profit = mid + (delta * 0.2)
+        stop_loss_price = mid - delta
+
+        limit_price = round(limit_price, 2)
+        take_profit = round(take_profit, 2)
+        stop_loss_price = round(stop_loss_price, 2)
+
+        buy_order = ib.bracketOrder(
+                   'BUY',
+                   quantity=qty,
+                   limitPrice=limit_price,
+                   takeProfitPrice=take_profit,
+                   stopLossPrice=stop_loss_price
+               )
+
+        for o in buy_order:
+           o.tif = 'GTC'
+           ib.sleep(0.00001)
+           ib.placeOrder(contract, o)
+           orders.append(o)
+
+    return extreme_value, contract, orders
+
+
+sleep_until_market_open()
+
+
+extreme_value, contract, orders = place_order()
+
+if extreme_value:
+    timeToSleep = 300
+    print("Sleeping for " + str(timeToSleep) + " seconds")
+
+    time.sleep(timeToSleep)
+    sell_stock(ib, contract, orders)
